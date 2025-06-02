@@ -1,11 +1,10 @@
-import Swal from "sweetalert2";
 import Button from "../../components/Button";
 import Enlace from "../../components/Enlace";
-import { IconPhStudentDuotone } from "../../components/icons/IconPhStudentDuotone ";
+import { IconPhChalkboardTeacherThin } from "../../components/icons/IconPhChalkboardTeacherThin";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-
-export default function SideBar() {
+export default function SideBarMentor() {
 
   const navigate = useNavigate();
 
@@ -36,23 +35,26 @@ export default function SideBar() {
       <div className="w-64 h-screen border-r shadow-sm flex flex-col justify-between bg-[#1D1D1D]">
         <div>
           <div className="flex flex-col items-center py-6 border-b">
-            <IconPhStudentDuotone className="size-14 text-white" />
-            <p className="text-sm font-semibold text-center text-white">Oscar Yalico Espinoza</p>
-            <p className="text-xs text-gray-100 text-center">osyalicoe@ucvirtual.edu.pe</p>
+            <IconPhChalkboardTeacherThin className="size-14 text-white" />
+            <p className="text-sm font-semibold text-center text-white">Manuel Davila</p>
+            <p className="text-xs text-gray-100 text-center">mdavila@zonatech.org.pe</p>
           </div>
 
           <div className="flex flex-col px-4 py-4 space-y-2">
-            <Enlace enlace="/estudiante/evaluaciones">
+            <Enlace enlace="/mentor/evaluaciones">
               Evaluaciones
             </Enlace>
-            <Enlace enlace="/estudiante/entrevistas">
+            <Enlace enlace="/mentor/evaluacicones/pendientes">
+              Evaluaciones Pendientes
+            </Enlace>
+            <Enlace enlace="/mentor/entrevistas">
               Entrevistas
             </Enlace>
-            <Enlace enlace="/estudiante/resultados">
-              Mis Resultados
+            <Enlace enlace="/mentor/entrevistas/pendientes">
+              Entrevistas Pendientes
             </Enlace>
-            <Enlace enlace="/estudiante/progreso">
-              Mi Progreso
+            <Enlace enlace="/mentor/resultados">
+              Resultados
             </Enlace>
           </div>
         </div>

@@ -95,7 +95,7 @@ const Resultados = () => {
           </thead>
           <tbody>
             {resultadosEvaluaciones.map((evaluacion) => (
-              <tr>
+              <tr key={evaluacion.id}>
                 <td className="text-center">{evaluacion.nombre}</td>
                 <td className="text-center">{evaluacion.mentor}</td>
                 <td className="text-center">

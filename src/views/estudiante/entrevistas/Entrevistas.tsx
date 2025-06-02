@@ -3,7 +3,7 @@ import Button from "../../../components/Button";
 import { useNavigate } from "react-router-dom";
 
 const Entrevistas = () => {
-  
+
   const navigate = useNavigate();
 
   const entrevistas = [
@@ -114,40 +114,40 @@ const Entrevistas = () => {
           </thead>
           <tbody>
             {entrevistas.map(entrevistas => (
-              <tr>
-              <td className="text-center">{entrevistas.titulo}</td>
-              <td className="text-center">{entrevistas.mentor}</td>
-              <td className="text-center">
-                <span className={`p-0.5 px-2 rounded-full font-bold border text-[14px] ${entrevistas.estado === "Completado"
-                      ? "bg-[#fcd34d46] border-[#d1ab30] text-[#d1ab30]"
-                      : "bg-[#189b4448] border-[#189b44] text-[#189b44]"
+              <tr key={entrevistas.id}>
+                <td className="text-center">{entrevistas.titulo}</td>
+                <td className="text-center">{entrevistas.mentor}</td>
+                <td className="text-center">
+                  <span className={`p-0.5 px-2 rounded-full font-bold border text-[14px] ${entrevistas.estado === "Completado"
+                    ? "bg-[#fcd34d46] border-[#d1ab30] text-[#d1ab30]"
+                    : "bg-[#189b4448] border-[#189b44] text-[#189b44]"
                     }`}>
-                  {entrevistas.estado}
-                </span>
-              </td>
-              <td className="text-center">
-                <span>{entrevistas.tiempo}</span>
-              </td>
-              <td className="text-center flex justify-center gap-2">
-                <Button variant="start" onClick={() =>
-                  openModal(
-                    entrevistas.titulo,
-                    entrevistas.tiempo,
-                    entrevistas.descripcion,
-                    entrevistas.tecnologias
-                  )
-                }>
-                  <span
-                    className="text-sm font-semibold"
-                  >
-                    Ver
+                    {entrevistas.estado}
                   </span>
-                </Button>
-                <Button onClick={() => startEvaluacion(entrevistas.id)}>
-                  <span className="text-sm font-semibold">Iniciar</span>
-                </Button>
-              </td>
-            </tr>
+                </td>
+                <td className="text-center">
+                  <span>{entrevistas.tiempo}</span>
+                </td>
+                <td className="text-center flex justify-center gap-2">
+                  <Button variant="start" onClick={() =>
+                    openModal(
+                      entrevistas.titulo,
+                      entrevistas.tiempo,
+                      entrevistas.descripcion,
+                      entrevistas.tecnologias
+                    )
+                  }>
+                    <span
+                      className="text-sm font-semibold"
+                    >
+                      Ver
+                    </span>
+                  </Button>
+                  <Button onClick={() => startEvaluacion(entrevistas.id)}>
+                    <span className="text-sm font-semibold">Iniciar</span>
+                  </Button>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>

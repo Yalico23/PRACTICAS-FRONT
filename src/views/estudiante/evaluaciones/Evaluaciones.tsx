@@ -137,7 +137,7 @@ const Evaluaciones = () => {
           </thead>
           <tbody>
             {evaluaciones.map(evaluaciones => (
-              <tr>
+              <tr key={evaluaciones.id}>
                 <td className="text-center">{evaluaciones.titulo}</td>
                 <td className="text-center">Marcus Castilla Flores</td>
                 <td className="text-center">
