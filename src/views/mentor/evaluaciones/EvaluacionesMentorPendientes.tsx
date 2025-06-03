@@ -1,9 +1,11 @@
-import React from 'react'
+
 
 const EvaluacionesMentorPendientes = () => {
   return (
-    <div>EvaluacionesMentorPendientes</div>
-  )
-}
+    <>
+      <h1>Evaluaciones Pendientes</h1>
+    </>
+  );
+};
 
-export default EvaluacionesMentorPendientes
+export default EvaluacionesMentorPendientes;

@@ -1,8 +1,10 @@
-import React from 'react'
+
 
 const EntrevistasMentor = () => {
   return (
-    <div>EntrevistasMentor</div>
+    <>
+      <h1>Entrevistas mentor</h1>
+    </>
   )
 }
 

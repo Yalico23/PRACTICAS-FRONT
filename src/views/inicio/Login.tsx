@@ -50,7 +50,7 @@ const Login = () => {
         redireccionarByRole(data.token)
 
       } else {
-        setError(data.message || 'Error de autenticación')
+        setError(data.error || 'Error de autenticación')
       }
     } catch (err) {
       console.error('Error en la petición:', err)

@@ -17,6 +17,7 @@ import RecuperarPassword from './views/inicio/RecuperarPassword'
 import Index from './views/inicio/Index'
 import { ProtectedRoute, PublicRoute } from './auth/ProtectedRoute'
 import RestablecerPassword from './views/inicio/RestablecerPassword'
+import CrearEntrevista from './views/mentor/evaluaciones/CrearEvaluaciones'
 
 export default function Router() {
     return (
@@ -69,6 +70,7 @@ export default function Router() {
                     </ProtectedRoute>
                 }>
                     <Route path='/mentor/evaluaciones' element={<EvaluaionesMentor />} />
+                    <Route path='/mentor/evaluaciobes/crear' element={<CrearEntrevista />} />
                     <Route path='/mentor/evaluacicones/pendientes' element={<EvaluacionesMentorPendientes />} />
                     <Route path='/mentor/entrevistas' element={<EntrevistasMentor />} />
                     <Route path='/mentor/entrevistas/pendientes' element={<EntrevistasMentorPendientes />} />

@@ -10,3 +10,10 @@ export type JwTPayload = {
   iat: number;
   exp: number;
 }
+
+export type UsuarioInfo = {
+  id : number
+  nombre : string;
+  apellidos : string;
+  email : string
+}

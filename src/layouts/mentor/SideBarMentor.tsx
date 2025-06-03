@@ -1,12 +1,53 @@
+import { jwtDecode } from "jwt-decode";
 import Button from "../../components/Button";
 import Enlace from "../../components/Enlace";
 import { IconPhChalkboardTeacherThin } from "../../components/icons/IconPhChalkboardTeacherThin";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { type UsuarioInfo, type JwTPayload } from "../../interfaces/interfaces";
+import { useEffect, useState } from "react";
 
 export default function SideBarMentor() {
 
   const navigate = useNavigate();
+
+  const [Usuario, setUsuario] = useState<UsuarioInfo>({
+    id : 0,
+    nombre : "",
+    apellidos : "",
+    email : ""
+  });
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    navigate('/login');
+    return; // no avanza si es null
+  }
+
+  const decoded = jwtDecode<JwTPayload>(token);
+
+  useEffect(() => {
+    cargarUsuario()
+  }, [])
+
+  const cargarUsuario = async () => {
+    const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${decoded.email}`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json; charset=UTF-8',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      console.error("Error al obtener el usuario:", response);
+      return;
+    }
+
+    const data = await response.json();
+    setUsuario(data);
+  }
 
   const cerrarSesion = () => {
     Swal.fire({
@@ -36,8 +77,8 @@ export default function SideBarMentor() {
         <div>
           <div className="flex flex-col items-center py-6 border-b">
             <IconPhChalkboardTeacherThin className="size-14 text-white" />
-            <p className="text-sm font-semibold text-center text-white">Manuel Davila</p>
-            <p className="text-xs text-gray-100 text-center">mdavila@zonatech.org.pe</p>
+            <p className="text-sm font-semibold text-center text-white">{Usuario.nombre + " " + Usuario.apellidos}</p>
+            <p className="text-xs text-gray-100 text-center">{Usuario.email}</p>
           </div>
 
           <div className="flex flex-col px-4 py-4 space-y-2">
