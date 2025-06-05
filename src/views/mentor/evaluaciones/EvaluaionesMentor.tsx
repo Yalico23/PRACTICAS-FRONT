@@ -4,7 +4,7 @@ const EvaluaionesMentor = () => {
   return (
     <>
       <Link
-        to={"/mentor/evaluaciobes/crear"}
+        to={"/mentor/evaluaciones/crear"}
         className="mt-6 inline-block bg-[#2272FF] text-white p-2 rounded-xl hover:bg-[#203bd3] transition"
       >
         Crear Evaluación
