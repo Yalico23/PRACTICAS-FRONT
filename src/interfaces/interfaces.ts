@@ -3,6 +3,8 @@ export type FormData = {
   password: string;
 }
 
+// -------------------------------
+
 export type JwTPayload = {
   sub: string;
   authorities: string; // viene como string JSON
@@ -17,6 +19,8 @@ export type UsuarioInfo = {
   apellidos: string;
   email: string
 }
+
+// --------------------------------
 
 export interface OpcionRespuesta {
   opcionRespuesta: string;
@@ -37,4 +41,13 @@ export interface EvaluacionData {
   tags: string;
   mentor: number;
   preguntas: Pregunta[];
+}
+
+// -----------------------
+
+export interface listEvalaciones {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  activo: boolean;
 }

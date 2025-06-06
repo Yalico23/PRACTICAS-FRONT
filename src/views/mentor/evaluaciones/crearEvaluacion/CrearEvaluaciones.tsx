@@ -114,7 +114,7 @@ const CrearEvaluaciones = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/evaluaciones', {
+      const response = await fetch('http://localhost:8080/api/evaluaciones/crear', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
