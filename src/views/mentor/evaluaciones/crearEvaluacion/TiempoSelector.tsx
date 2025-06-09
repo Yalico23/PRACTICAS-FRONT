@@ -1,67 +1,62 @@
 import { useState, useEffect } from "react";
 
 interface TiempoSelectorProps {
-  tiempo: number; // tiempo en segundos
+  tiempo: number; // tiempo en minutos
   onChange: (tiempo: number) => void;
 }
 
 const TiempoSelector = ({ tiempo, onChange }: TiempoSelectorProps) => {
   const [tiempoDisplay, setTiempoDisplay] = useState({
     horas: 0,
-    minutos: 1,
-    segundos: 0
+    minutos: 1
   });
 
-  // Función para convertir segundos a formato amigable
-  const segundosADisplay = (segundos: number) => {
-    const horas = Math.floor(segundos / 3600);
-    const minutos = Math.floor((segundos % 3600) / 60);
-    const segs = segundos % 60;
-    return { horas, minutos, segundos: segs };
+  // Función para convertir minutos a formato amigable
+  const minutosADisplay = (minutos: number) => {
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    return { horas, minutos: mins };
   };
 
-  // Función para convertir display a segundos
-  const displayASegundos = (horas: number, minutos: number, segundos: number) => {
-    return (horas * 3600) + (minutos * 60) + segundos;
+  // Función para convertir display a minutos
+  const displayAMinutos = (horas: number, minutos: number) => {
+    return (horas * 60) + minutos;
   };
 
   // Función para formatear tiempo para mostrar
-  const formatearTiempo = (segundos: number) => {
-    const { horas, minutos, segundos: segs } = segundosADisplay(segundos);
+  const formatearTiempo = (minutos: number) => {
+    const { horas, minutos: mins } = minutosADisplay(minutos);
     if (horas > 0) {
-      return `${horas}h ${minutos}m ${segs}s`;
+      return `${horas}h ${mins}m`;
     }
-    if (minutos > 0) {
-      return `${minutos}m ${segs}s`;
-    }
-    return `${segs}s`;
+    return `${mins}m`;
   };
 
   useEffect(() => {
-    setTiempoDisplay(segundosADisplay(tiempo));
+    setTiempoDisplay(minutosADisplay(tiempo));
   }, [tiempo]);
 
-  const handleTiempoChange = (tipo: 'horas' | 'minutos' | 'segundos', valor: number) => {
+  const handleTiempoChange = (tipo: 'horas' | 'minutos', valor: number) => {
     // Asegurar que el valor esté en el rango válido
     let valorValido = valor;
     if (tipo === 'horas' && valor < 0) valorValido = 0;
     if (tipo === 'horas' && valor > 23) valorValido = 23;
-    if ((tipo === 'minutos' || tipo === 'segundos') && valor < 0) valorValido = 0;
-    if ((tipo === 'minutos' || tipo === 'segundos') && valor > 59) valorValido = 59;
+    if (tipo === 'minutos' && valor < 0) valorValido = 0;
+    if (tipo === 'minutos' && valor > 59) valorValido = 59;
 
     const nuevoTiempo = { ...tiempoDisplay, [tipo]: valorValido };
     setTiempoDisplay(nuevoTiempo);
     
-    // Actualizar el tiempo en segundos
-    const tiempoEnSegundos = displayASegundos(nuevoTiempo.horas, nuevoTiempo.minutos, nuevoTiempo.segundos);
-    onChange(tiempoEnSegundos);
+    // Actualizar el tiempo en minutos
+    const tiempoEnMinutos = displayAMinutos(nuevoTiempo.horas, nuevoTiempo.minutos);
+    onChange(tiempoEnMinutos);
   };
 
   return (
     <div>
       <label className="block text-sm font-medium mb-1">Tiempo de pregunta</label>
       <div className="space-y-2">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="block text-xs text-gray-600 mb-1">Horas</label>
             <input
@@ -81,19 +76,6 @@ const TiempoSelector = ({ tiempo, onChange }: TiempoSelectorProps) => {
               type="number"
               value={tiempoDisplay.minutos}
               onChange={(e) => handleTiempoChange('minutos', parseInt(e.target.value) || 0)}
-              className="w-full p-2 border border-gray-300 rounded text-center"
-              min="0"
-              max="59"
-              placeholder="0"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">Segundos</label>
-            <input
-              type="number"
-              value={tiempoDisplay.segundos}
-              onChange={(e) => handleTiempoChange('segundos', parseInt(e.target.value) || 0)}
               className="w-full p-2 border border-gray-300 rounded text-center"
               min="0"
               max="59"

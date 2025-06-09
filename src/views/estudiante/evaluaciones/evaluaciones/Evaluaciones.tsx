@@ -1,53 +1,43 @@
 import Swal from "sweetalert2";
-import Button from "../../../components/Button";
+import Button from "../../../../components/Button";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import type { EvaluacionEstudiante } from "../../../../interfaces/interfaces";
 
 const Evaluaciones = () => {
 
   const navigate = useNavigate();
 
-  const evaluaciones = [
-    {
-      id: 1,
-      titulo: "JavaScript DOM",
-      mentor: "Marcus Castilla Flores",
-      tecnologia: "JavaScript",
-      estado: "Disponible",
-      tiempo: "1h 4min",
-      descripcion:
-        "Esta evaluación tiene como objetivo medir el nivel de aprendizaje del estudiante en el consumo de APIs mediante JavaScript, evaluando su capacidad para integrar nuevas funcionalidades en aplicaciones web o móviles, así como para realizar operaciones de persistencia de datos (crear, leer, actualizar y eliminar información) a través de servicios externos.",
-    },
-    {
-      id: 2,
-      titulo: "C# POO",
-      mentor: "Marcus Castilla Flores",
-      tecnologia: "C#",
-      estado: "Completado",
-      tiempo: "1h 4min",
-      descripcion:
-        "Esta evaluación tiene como objetivo medir el nivel de aprendizaje del estudiante en la programación orientada a objetos (POO) utilizando C#, evaluando su capacidad para aplicar conceptos de encapsulamiento, herencia y polimorfismo en el desarrollo de aplicaciones.",
-    },
-    {
-      id: 3,
-      titulo: "React Hooks",
-      mentor: "Marcus Castilla Flores",
-      tecnologia: "React",
-      estado: "Disponible",
-      tiempo: "1h 4min",
-      descripcion:
-        "Esta evaluación tiene como objetivo medir el nivel de aprendizaje del estudiante en el uso de hooks en React, evaluando su capacidad para gestionar el estado y los efectos secundarios en componentes funcionales.",
-    },
-    {
-      id: 4,
-      titulo: "Node.js Express",
-      mentor: "Marcus Castilla Flores",
-      tecnologia: "Node.js",
-      estado: "Completado",
-      tiempo: "1h 4min",
-      descripcion:
-        "Esta evaluación tiene como objetivo medir el nivel de aprendizaje del estudiante en el desarrollo de aplicaciones backend utilizando Node.js y Express, evaluando su capacidad para crear APIs RESTful y gestionar bases de datos.",
-    },
-  ]
+  const [evaluaciones, setEvaluaciones] = useState<EvaluacionEstudiante[]>([]);
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    cargarUsuario();
+  }, [])
+
+  const cargarUsuario = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/evaluaciones/listarEvaluacionesEstudiante`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json; charset=UTF-8',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        console.error("Error al obtener el usuario:", response);
+        return;
+      }
+
+      const data = await response.json();
+      setEvaluaciones(data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
 
   const openModal = (
     titulo: string,
@@ -147,8 +137,8 @@ const Evaluaciones = () => {
                 </td>
                 <td className="text-center">
                   <span className={`p-0.5 px-2 rounded-full font-bold border text-[14px] ${evaluaciones.estado === "Completado"
-                      ? "bg-[#fcd34d46] border-[#d1ab30] text-[#d1ab30]"
-                      : "bg-[#189b4448] border-[#189b44] text-[#189b44]"
+                    ? "bg-[#fcd34d46] border-[#d1ab30] text-[#d1ab30]"
+                    : "bg-[#189b4448] border-[#189b44] text-[#189b44]"
                     }`}>
                     {evaluaciones.estado}
                   </span>

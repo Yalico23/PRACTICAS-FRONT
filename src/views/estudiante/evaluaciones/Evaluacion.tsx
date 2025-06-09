@@ -5,7 +5,7 @@ import {Opcion} from '../../../components/Opcion';
 const PreguntaEjemplo = () => {
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
   const [tiempoRestante, setTiempoRestante] = useState<number>(100);
-  const [intentosTrampa, setIntentosTrampa] = useState<number>(-1);
+  const [intentosTrampa, setIntentosTrampa] = useState<number>(0);
   const [evaluacionBloqueada, setEvaluacionBloqueada] = useState<boolean>(false);
   const [alertasActividad, setAlertasActividad] = useState<string[]>([]);
   const [tiempoInicio] = useState<number>(Date.now());

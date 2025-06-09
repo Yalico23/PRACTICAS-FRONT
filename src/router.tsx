@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Evaluaciones from './views/estudiante/evaluaciones/Evaluaciones'
+import Evaluaciones from './views/estudiante/evaluaciones/evaluaciones/Evaluaciones'
 import Entrevistas from './views/estudiante/entrevistas/Entrevistas'
 import Resultados from './views/estudiante/resultados/Resultados'
 import Progreso from './views/estudiante/progreso/Progreso'

@@ -1,9 +1,10 @@
+// Interfaz para la autenticación de usuario
 export type FormData = {
   email: string;
   password: string;
 }
 
-// -------------------------------
+// Interfaz para el token JWT
 
 export type JwTPayload = {
   sub: string;
@@ -13,6 +14,8 @@ export type JwTPayload = {
   exp: number;
 }
 
+// Interfaz para el usuario autenticado
+
 export type UsuarioInfo = {
   id: number
   nombre: string;
@@ -20,7 +23,7 @@ export type UsuarioInfo = {
   email: string
 }
 
-// --------------------------------
+// Interfaz para la evaluación
 
 export interface OpcionRespuesta {
   opcionRespuesta: string;
@@ -43,7 +46,7 @@ export interface EvaluacionData {
   preguntas: Pregunta[];
 }
 
-// -----------------------
+// Interfaz para la lista de evaluaciones parte del mentor
 
 export interface listEvalaciones {
   id: number;
@@ -52,30 +55,13 @@ export interface listEvalaciones {
   activo: boolean;
 }
 
-// -----------------------
-export interface OpcionRespuesta { opcionRespuesta: string; correcta: boolean; }
-export interface Pregunta {
-  pregunta: string;
-  tipoPregunta: string;
-  tiempo: number;
-  valor: number;
-  opcionRespuestas?: OpcionRespuesta[];
-}
-export interface EvaluacionFromAPI {
+export interface EvaluacionEstudiante {
   id: number;
   titulo: string;
   descripcion: string;
-  tags: string;
-  activo: boolean;
-  fechaCreacion: string;
-  preguntas: Pregunta[];
-  mentor: { id: number };
-}
-export interface Evaluacion {
-  id: number;
-  titulo: string;
-  descripcion: string;
+  mentor: string;
   tecnologia: string;
-  estado: "Disponible" | "Completado";
+  estado: string;
   tiempo: string;
 }
+
