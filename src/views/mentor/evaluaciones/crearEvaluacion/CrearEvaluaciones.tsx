@@ -17,7 +17,7 @@ const CrearEvaluaciones = () => {
     titulo: "",
     descripcion: "",
     tags: "",
-    mentor: 0,
+    mentorId: 0,
     preguntas: []
   });
 
@@ -60,7 +60,7 @@ const CrearEvaluaciones = () => {
       
       const data = await response.json();
       setUsuario(data);
-      setEvaluacion(prev => ({ ...prev, mentor: data.id }));
+      setEvaluacion(prev => ({ ...prev, mentorId: data.id }));
     } catch (error) {
       console.error("Error:", error);
     }
@@ -123,6 +123,8 @@ const CrearEvaluaciones = () => {
         body: JSON.stringify(evaluacion)
       });
 
+      console.log(evaluacion);
+
       if (response.ok) {
         const result = await response.json();
         alert("Evaluación creada exitosamente");
@@ -131,11 +133,12 @@ const CrearEvaluaciones = () => {
           titulo: "",
           descripcion: "",
           tags: "",
-          mentor: Usuario.id,
+          mentorId: Usuario.id,
           preguntas: []
         });
       } else {
         alert("Error al crear la evaluación");
+        console.error(response)
       }
     } catch (error) {
       console.error("Error:", error);

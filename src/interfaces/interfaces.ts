@@ -39,7 +39,7 @@ export interface EvaluacionData {
   titulo: string;
   descripcion: string;
   tags: string;
-  mentor: number;
+  mentorId: number;
   preguntas: Pregunta[];
 }
 
@@ -50,4 +50,32 @@ export interface listEvalaciones {
   titulo: string;
   descripcion: string;
   activo: boolean;
+}
+
+// -----------------------
+export interface OpcionRespuesta { opcionRespuesta: string; correcta: boolean; }
+export interface Pregunta {
+  pregunta: string;
+  tipoPregunta: string;
+  tiempo: number;
+  valor: number;
+  opcionRespuestas?: OpcionRespuesta[];
+}
+export interface EvaluacionFromAPI {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  tags: string;
+  activo: boolean;
+  fechaCreacion: string;
+  preguntas: Pregunta[];
+  mentor: { id: number };
+}
+export interface Evaluacion {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  tecnologia: string;
+  estado: "Disponible" | "Completado";
+  tiempo: string;
 }
