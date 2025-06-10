@@ -3,7 +3,7 @@ import Evaluaciones from './views/estudiante/evaluaciones/evaluaciones/Evaluacio
 import Entrevistas from './views/estudiante/entrevistas/Entrevistas'
 import Resultados from './views/estudiante/resultados/Resultados'
 import Progreso from './views/estudiante/progreso/Progreso'
-import Evaluacion from './views/estudiante/evaluaciones/Evaluacion'
+import Evaluacion from './views/estudiante/evaluaciones/evaluacion/Evaluacion'
 import Entrevista from './views/estudiante/entrevistas/Entrevista'
 import MainLayoutEstudiante from './layouts/estudiante/MainLayoutEstudiante'
 import MainLayoutMentor from './layouts/mentor/MainLayoutMentor'
@@ -18,6 +18,7 @@ import Index from './views/inicio/Index'
 import { ProtectedRoute, PublicRoute } from './auth/ProtectedRoute'
 import RestablecerPassword from './views/inicio/RestablecerPassword'
 import CrearEntrevista from './views/mentor/evaluaciones/crearEvaluacion/CrearEvaluaciones'
+import DarEvaluacion from './views/estudiante/evaluaciones/evaluacion/DarEvaluacion'
 
 export default function Router() {
     return (
@@ -56,7 +57,7 @@ export default function Router() {
                     </ProtectedRoute>
                 }>
                     <Route path='/estudiante/evaluaciones' element={<Evaluaciones />} />
-                    <Route path='/estudiante/evaluacion/:evaluacionId' element={<Evaluacion />} />
+                    <Route path='/estudiante/evaluacion/:evaluacionId' element={<DarEvaluacion />} />
                     <Route path='/estudiante/entrevistas' element={<Entrevistas />} />
                     <Route path='/estudiante/entrevista/:entrevistaId' element={<Entrevista />} />
                     <Route path='/estudiante/resultados' element={<Resultados />} />

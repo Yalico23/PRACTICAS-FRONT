@@ -26,11 +26,13 @@ export type UsuarioInfo = {
 // Interfaz para la evaluación
 
 export interface OpcionRespuesta {
+  id ?: number;
   opcionRespuesta: string;
   correcta: boolean;
 }
 
 export interface Pregunta {
+  id ?: number;
   pregunta: string;
   tipoPregunta: string;
   tiempo: number;
@@ -65,3 +67,9 @@ export interface EvaluacionEstudiante {
   tiempo: string;
 }
 
+// interfaces para dar la evaluacion por parte del estudiante
+export interface evaluacionByIdEstudiante{
+  id: number;
+  titulo: string;
+  preguntas: Pregunta[];
+}

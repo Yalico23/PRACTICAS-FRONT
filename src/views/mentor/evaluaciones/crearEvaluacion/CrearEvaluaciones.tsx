@@ -42,6 +42,16 @@ const CrearEvaluaciones = () => {
     cargarUsuario();
   }, []);
 
+  // Función para calcular el total de puntos
+  const calcularTotalPuntos = () => {
+    return evaluacion.preguntas.reduce((total, pregunta) => total + (pregunta.valor || 0), 0);
+  };
+
+  // Función para calcular puntos disponibles
+  const calcularPuntosDisponibles = () => {
+    return 20 - calcularTotalPuntos();
+  };
+
   const cargarUsuario = async () => {
     try {
       const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${decoded.email}`, {
@@ -52,12 +62,12 @@ const CrearEvaluaciones = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         console.error("Error al obtener el usuario:", response);
         return;
       }
-      
+
       const data = await response.json();
       setUsuario(data);
       setEvaluacion(prev => ({ ...prev, mentorId: data.id }));
@@ -81,6 +91,23 @@ const CrearEvaluaciones = () => {
   };
 
   const handleSavePregunta = (pregunta: any) => {
+    const totalActual = calcularTotalPuntos();
+    const valorPreguntaOriginal = editingIndex !== null ? evaluacion.preguntas[editingIndex].valor : 0;
+    const nuevoTotal = totalActual - valorPreguntaOriginal + pregunta.valor;
+
+    // Validar que no exceda los 20 puntos
+    if (nuevoTotal > 20) {
+      const puntosDisponibles = 20 - (totalActual - valorPreguntaOriginal);
+      alert(`No se puede agregar esta pregunta. Solo tienes ${puntosDisponibles} puntos disponibles. La suma total debe ser exactamente 20 puntos.`);
+      return;
+    }
+
+    if (nuevoTotal < 1) {
+      const puntosDisponibles = 20 - (totalActual - valorPreguntaOriginal);
+      alert(`No se puede agregar esta pregunta. Debes asignar al menos 1 punto. Actualmente tienes ${puntosDisponibles} puntos disponibles.`);
+      return;
+    }
+
     if (editingIndex !== null) {
       setEvaluacion(prev => ({
         ...prev,
@@ -110,6 +137,12 @@ const CrearEvaluaciones = () => {
 
     if (evaluacion.preguntas.length === 0) {
       alert("Debe agregar al menos una pregunta");
+      return;
+    }
+
+    const totalPuntos = calcularTotalPuntos();
+    if (totalPuntos !== 20) {
+      alert(`La suma total de puntos debe ser exactamente 20. Actualmente tiene ${totalPuntos} puntos.`);
       return;
     }
 
@@ -146,14 +179,43 @@ const CrearEvaluaciones = () => {
     }
   };
 
+  const totalPuntos = calcularTotalPuntos();
+  const puntosDisponibles = calcularPuntosDisponibles();
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white">
       <h1 className="text-2xl font-bold mb-6">Crear Evaluación</h1>
-      
-      <EvaluacionForm 
+
+      <EvaluacionForm
         evaluacion={evaluacion}
         onInputChange={handleInputChange}
       />
+
+      {/* Indicador de puntos */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+        <div className="flex justify-between items-center">
+          <div>
+            <span className="text-lg font-semibold">Total de puntos: </span>
+            <span className={`text-lg font-bold ${totalPuntos === 20 ? 'text-green-600' : totalPuntos > 20 ? 'text-red-600' : 'text-orange-600'}`}>
+              {totalPuntos}/20
+            </span>
+          </div>
+          <div>
+            <span className="text-sm text-gray-600">Puntos disponibles: </span>
+            <span className={`text-sm font-medium ${puntosDisponibles === 0 ? 'text-green-600' : 'text-blue-600'}`}>
+              {puntosDisponibles}
+            </span>
+          </div>
+        </div>
+        {totalPuntos !== 20 && (
+          <div className="mt-2 text-sm text-gray-600">
+            {totalPuntos < 20 ?
+              `Necesitas agregar ${20 - totalPuntos} puntos más para completar la evaluación.` :
+              `Has excedido por ${totalPuntos - 20} puntos. Reduce el valor de algunas preguntas.`
+            }
+          </div>
+        )}
+      </div>
 
       <PreguntasList
         preguntas={evaluacion.preguntas}

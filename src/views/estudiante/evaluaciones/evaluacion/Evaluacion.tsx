@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {useEffect, useRef, useCallback} from 'react';
-import {Opcion} from '../../../components/Opcion';
+import {Opcion} from '../../../../components/Opcion';
 
 const PreguntaEjemplo = () => {
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
