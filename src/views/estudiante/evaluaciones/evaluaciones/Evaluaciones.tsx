@@ -161,9 +161,13 @@ const Evaluaciones = () => {
                       Ver
                     </span>
                   </Button>
-                  <Button onClick={() => startEvaluacion(evaluaciones.id)}>
-                    <span className="text-sm font-semibold">Iniciar</span>
-                  </Button>
+                  {evaluaciones.estado === "Disponible" && (
+                    <Button onClick={() => startEvaluacion(evaluaciones.id)}>
+                      <span className="text-sm font-semibold">
+                        Iniciar
+                      </span>
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}

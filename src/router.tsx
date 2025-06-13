@@ -3,7 +3,6 @@ import Evaluaciones from './views/estudiante/evaluaciones/evaluaciones/Evaluacio
 import Entrevistas from './views/estudiante/entrevistas/Entrevistas'
 import Resultados from './views/estudiante/resultados/Resultados'
 import Progreso from './views/estudiante/progreso/Progreso'
-import Evaluacion from './views/estudiante/evaluaciones/evaluacion/Evaluacion'
 import Entrevista from './views/estudiante/entrevistas/Entrevista'
 import MainLayoutEstudiante from './layouts/estudiante/MainLayoutEstudiante'
 import MainLayoutMentor from './layouts/mentor/MainLayoutMentor'
@@ -19,6 +18,7 @@ import { ProtectedRoute, PublicRoute } from './auth/ProtectedRoute'
 import RestablecerPassword from './views/inicio/RestablecerPassword'
 import CrearEntrevista from './views/mentor/evaluaciones/crearEvaluacion/CrearEvaluaciones'
 import DarEvaluacion from './views/estudiante/evaluaciones/evaluacion/DarEvaluacion'
+import GraciasEvaluacion from './views/estudiante/evaluaciones/evaluacion/GraciasEvaluacion'
 
 export default function Router() {
     return (
@@ -42,7 +42,7 @@ export default function Router() {
                         <RecuperarPassword />
                     </PublicRoute>
                 } />
-                
+
                 <Route path='/restablecer-password' element={
                     <PublicRoute>
                         <RestablecerPassword />
@@ -57,12 +57,20 @@ export default function Router() {
                     </ProtectedRoute>
                 }>
                     <Route path='/estudiante/evaluaciones' element={<Evaluaciones />} />
-                    <Route path='/estudiante/evaluacion/:evaluacionId' element={<DarEvaluacion />} />
                     <Route path='/estudiante/entrevistas' element={<Entrevistas />} />
                     <Route path='/estudiante/entrevista/:entrevistaId' element={<Entrevista />} />
                     <Route path='/estudiante/resultados' element={<Resultados />} />
                     <Route path='/estudiante/progreso' element={<Progreso />} />
                 </Route>
+
+                { /** Fuera del sideBar */ }
+                <Route path='/estudiante/evaluacion/:evaluacionId' element={
+                    <ProtectedRoute allowedRoles={['ROLE_ESTUDIANTE']}>
+                        <DarEvaluacion />
+                    </ProtectedRoute>
+                }/>
+
+               <Route path='/componentesPrueba' element={<GraciasEvaluacion  />} /> 
 
                 {/* Rutas protegidas para mentores */}
                 <Route element={
@@ -77,6 +85,8 @@ export default function Router() {
                     <Route path='/mentor/entrevistas/pendientes' element={<EntrevistasMentorPendientes />} />
                     <Route path='/mentor/resultados' element={<ResultadosMentor />} />
                 </Route>
+
+                
 
                 {/* Ruta catch-all para 404 */}
                 <Route path='*' element={<Navigate to="/" replace />} />
