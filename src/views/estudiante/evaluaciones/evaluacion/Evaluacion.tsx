@@ -1,8 +1,9 @@
-import {useState} from 'react'
+import {useState} from 'react';
 import {useEffect, useRef, useCallback} from 'react';
 import {Opcion} from '../../../../components/Opcion';
 
 const PreguntaEjemplo = () => {
+  
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
   const [tiempoRestante, setTiempoRestante] = useState<number>(100);
   const [intentosTrampa, setIntentosTrampa] = useState<number>(0);
