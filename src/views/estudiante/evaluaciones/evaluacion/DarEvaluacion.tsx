@@ -188,13 +188,15 @@ const DarEvaluacion = () => {
   }
 
   if (evaluacionTerminada) {
+    console.log("Preguntas" + Evaluacion.preguntas);
+    console.log("Respuestas" + respuestas);
     return (
       <>
         <GraciasEvaluacion
           nombreEstudiante={Usuario.nombre + " " + Usuario.apellidos}
           tituloEvaluacion={Evaluacion.titulo}
           totalPreguntas={Evaluacion.preguntas.length}
-          preguntasRespondidas={respuestas.length}
+          preguntasRespondidas={respuestas.length + 1} // +1 para incluir la última pregunta respondida
         />
       </>
     );

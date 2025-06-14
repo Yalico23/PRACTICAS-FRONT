@@ -146,7 +146,7 @@ const GraciasEvaluacion = ({
         {/* Footer */}
         <div className="text-center mt-6">
           <p className="text-slate-500 text-sm">
-            © 2025 Sistema de Evaluaciones Académicas
+            © 2025 Sistema de Evaluaciones Académicas ZonaTech Peru
           </p>
         </div>
       </div>
