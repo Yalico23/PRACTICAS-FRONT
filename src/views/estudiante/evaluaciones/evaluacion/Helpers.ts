@@ -45,3 +45,22 @@ export const getUsuarioByemail = async (token: string, email: string) => {
         alert("Error al obtener el usuario");
     }
 }
+
+export const verificarSiRespondioEvaluacion = async (idEvaluacion: number, idUsuario: number, token: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/evaluacionEstudiante/validarEvaluacionDoble/${idEvaluacion}/${idUsuario}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log(response);
+    if (!response.ok) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error al verificar evaluación:", error);
+    return false;
+  }
+};

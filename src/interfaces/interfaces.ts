@@ -73,3 +73,13 @@ export interface evaluacionByIdEstudiante{
   titulo: string;
   preguntas: Pregunta[];
 }
+
+export type RespuestaEstudiante = {
+  respuesta?: string;
+  pregunta: {
+    id: number;
+  };
+  opcionRespuesta?: {
+    id: number;
+  };
+}

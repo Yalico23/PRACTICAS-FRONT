@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react";
-import type { evaluacionByIdEstudiante, UsuarioInfo } from "../../../../interfaces/interfaces";
-import { useParams } from "react-router-dom";
-import { getEvalucionById, getUsuarioByemail } from "./Helpers";
+import type { evaluacionByIdEstudiante, RespuestaEstudiante, UsuarioInfo } from "../../../../interfaces/interfaces";
+import { useParams , useNavigate } from "react-router-dom";
+import { getEvalucionById, getUsuarioByemail, verificarSiRespondioEvaluacion } from "./Helpers";
 import { decodeJWT } from "../../../mentor/evaluaciones/crearEvaluacion/decodeJWT";
 import GraciasEvaluacion from "./GraciasEvaluacion";
 
-type RespuestaEstudiante = {
-  respuesta?: string;
-  pregunta: {
-    id: number;
-  };
-  opcionRespuesta?: {
-    id: number;
-  };
-}
+
 
 const DarEvaluacion = () => {
   const [Usuario, setUsuario] = useState<UsuarioInfo>();
@@ -26,6 +18,7 @@ const DarEvaluacion = () => {
   const [evaluacionTerminada, setEvaluacionTerminada] = useState(false);
 
   const { evaluacionId } = useParams<{ evaluacionId: string }>();
+  const navigate = useNavigate();
 
   // Función para formatear tiempo (minutos a MM:SS)
   const formatearTiempo = (minutos: number): string => {
@@ -60,6 +53,13 @@ const DarEvaluacion = () => {
       try {
         const data = await getEvalucionById(Number(evaluacionId), token ?? "");
         const usuario = await getUsuarioByemail(token ?? "", decode.email);
+        const yaRespondio = await verificarSiRespondioEvaluacion(Number(evaluacionId), usuario.id, token ?? "");
+
+        if (yaRespondio) {
+          navigate("/estudiante/evaluaciones");
+          return;
+        }
+
         if (data && usuario) {
           setUsuario(usuario);
           setEvaluacion(data);

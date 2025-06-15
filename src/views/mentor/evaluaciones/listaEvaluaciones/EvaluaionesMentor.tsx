@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { JwTPayload, listEvalaciones, UsuarioInfo } from "../../../../interfaces/interfaces";
 import { jwtDecode } from "jwt-decode";
+import { alertasSweet } from "./Alertas";
+import Swal from "sweetalert2";
 
 const EvaluaionesMentor = () => {
 
@@ -80,27 +82,96 @@ const EvaluaionesMentor = () => {
   }
 
   const cambiaEstadoEvalucion = async (id: number, preEstado: boolean) => {
-    try {
-      const URL: string = `http://localhost:8080/api/evaluaciones/cambiarEstado?idEvaluacion=${id}&estadoPrevio=${preEstado}`;
-      console.log(URL);
-      const response = await fetch(URL, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json; charset=UTF-8',
-          'Authorization': `Bearer ${token}`
+
+    Swal.fire({
+      title: 'Cambiar Estado',
+      text: `¿Estás seguro de que deseas ${preEstado ? 'deshabilitar' : 'habilitar'} esta evaluación?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cambiar estado',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const URL: string = `http://localhost:8080/api/evaluaciones/cambiarEstado?idEvaluacion=${id}&estadoPrevio=${preEstado}`;
+          const response = await fetch(URL, {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json; charset=UTF-8',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!response.ok) {
+            console.error("Error al obtener el usuario:", response);
+            return;
+          }
+          await cargarEvaluaciones();
+        } catch (error) {
+          console.error("Error:", error);
         }
-      });
-      if (!response.ok) {
-        console.error("Error al obtener el usuario:", response);
-        return;
       }
-      const data =  await response.json();
-      console.log(data);
-      await cargarEvaluaciones();
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    });
+  }
+
+  const eliminarEvaluacion = async (id: number) => {
+    Swal.fire({
+      title: 'Eliminar Evaluación',
+      text: "¿Estás seguro de que deseas eliminar esta evaluación?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const URL: string = `http://localhost:8080/api/evaluaciones/eliminarEvaluacion?idEvaluacion=${id}`;
+          const response = await fetch(URL, {
+            method: "DELETE",
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json; charset=UTF-8',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          // Manejar respuesta de error
+          if (!response.ok) {
+            let errorMessage = "Error al eliminar la evaluación";
+
+            // Solo intentar parsear JSON si no es 204 y tiene content-type JSON
+            if (response.status !== 204) {
+              const contentType = response.headers.get("content-type");
+              if (contentType && contentType.includes("application/json")) {
+                try {
+                  const data = await response.json();
+                  errorMessage = data.details?.[0] || data.message || errorMessage;
+                } catch (parseError) {
+                  console.error("Error parsing error response:", parseError);
+                }
+              }
+            }
+
+            alertasSweet("Error", errorMessage, "error");
+            return;
+          }
+
+          // Status 204 (No Content) = eliminación exitosa, no hay JSON que parsear
+          if (response.status === 204) {
+            alertasSweet("Éxito", "Evaluación eliminada correctamente", "success");
+            await cargarEvaluaciones();
+            return;
+          }
+
+          alertasSweet("Éxito", "Evaluación eliminada correctamente", "success");
+          await cargarEvaluaciones();
+
+        } catch (error) {
+          console.error("Error:", error);
+          alertasSweet("Error", "Error de conexión al servidor", "error");
+        }
+      }
+    });
   }
 
   return (
@@ -133,9 +204,10 @@ const EvaluaionesMentor = () => {
                   <td className="px-6 py-4 text-center">{evaluacion.activo ? 'Activa' : 'Inactiva'}</td>
                   <td className="px-6 py-4 flex gap-3 justify-center">
                     <button className="bg-sky-600 text-gray-950 rounded-xl p-2">Editar</button>
-                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2">Eliminar</button>
-                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2" 
-                    onClick={() => cambiaEstadoEvalucion(evaluacion.id, evaluacion.activo)}>
+                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2"
+                      onClick={() => eliminarEvaluacion(evaluacion.id)}>Eliminar</button>
+                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2"
+                      onClick={() => cambiaEstadoEvalucion(evaluacion.id, evaluacion.activo)}>
                       {evaluacion.activo ? 'Deshabilitar' : 'Habilitar'}
                     </button>
                   </td>
