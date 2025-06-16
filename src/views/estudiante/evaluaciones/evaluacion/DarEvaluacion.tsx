@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { evaluacionByIdEstudiante, RespuestaEstudiante, UsuarioInfo } from "../../../../interfaces/interfaces";
+import type { JwTPayload,  evaluacionByIdEstudiante, RespuestaEstudiante, UsuarioInfo } from "../../../../interfaces/interfaces";
 import { useParams , useNavigate } from "react-router-dom";
 import { getEvalucionById, getUsuarioByemail, verificarSiRespondioEvaluacion } from "./Helpers";
-import { decodeJWT } from "../../../mentor/evaluaciones/crearEvaluacion/decodeJWT";
+import { jwtDecode } from "jwt-decode";
 import GraciasEvaluacion from "./GraciasEvaluacion";
 
 
@@ -48,7 +48,7 @@ const DarEvaluacion = () => {
       if (!evaluacionId) return;
 
       const token = localStorage.getItem("token");
-      const decode = decodeJWT(token ?? "");
+      const decode = jwtDecode<JwTPayload>(token ?? "") as JwTPayload;
 
       try {
         const data = await getEvalucionById(Number(evaluacionId), token ?? "");

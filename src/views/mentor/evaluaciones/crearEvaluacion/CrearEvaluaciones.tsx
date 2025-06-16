@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import type { EvaluacionData, UsuarioInfo } from "../../../../interfaces/interfaces";
-import { decodeJWT } from "./decodeJWT";
+import type { EvaluacionData, UsuarioInfo, JwTPayload } from "../../../../interfaces/interfaces";
+import { jwtDecode } from "jwt-decode";
 import EvaluacionForm from "./EvaluacionForm";
 import PreguntasList from "./PreguntasList";
 import PreguntaModal from "./PreguntaModal";
+import { cargarUsuario } from "./Helper";
 
 const CrearEvaluaciones = () => {
   const [Usuario, setUsuario] = useState<UsuarioInfo>({
@@ -25,7 +26,7 @@ const CrearEvaluaciones = () => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const token = localStorage.getItem('token');
-  const decoded = token ? decodeJWT(token) : null;
+  const decoded = jwtDecode<JwTPayload>(token || "");
 
   if (!token || !decoded) {
     return (
@@ -39,7 +40,12 @@ const CrearEvaluaciones = () => {
   }
 
   useEffect(() => {
-    cargarUsuario();
+    const fetchUsuario = async () => {
+      const data = await cargarUsuario(decoded.email, token);
+      setUsuario(data);
+      setEvaluacion(prev => ({ ...prev, mentorId: data.id }));
+    };
+    fetchUsuario();
   }, []);
 
   // Función para calcular el total de puntos
@@ -50,30 +56,6 @@ const CrearEvaluaciones = () => {
   // Función para calcular puntos disponibles
   const calcularPuntosDisponibles = () => {
     return 20 - calcularTotalPuntos();
-  };
-
-  const cargarUsuario = async () => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${decoded.email}`, {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json; charset=UTF-8',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        console.error("Error al obtener el usuario:", response);
-        return;
-      }
-
-      const data = await response.json();
-      setUsuario(data);
-      setEvaluacion(prev => ({ ...prev, mentorId: data.id }));
-    } catch (error) {
-      console.error("Error:", error);
-    }
   };
 
   const handleInputChange = (field: keyof EvaluacionData, value: string) => {
@@ -156,12 +138,8 @@ const CrearEvaluaciones = () => {
         body: JSON.stringify(evaluacion)
       });
 
-      console.log(evaluacion);
-
       if (response.ok) {
-        const result = await response.json();
         alert("Evaluación creada exitosamente");
-        console.log(result);
         setEvaluacion({
           titulo: "",
           descripcion: "",
