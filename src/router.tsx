@@ -16,9 +16,9 @@ import RecuperarPassword from './views/inicio/RecuperarPassword'
 import Index from './views/inicio/Index'
 import { ProtectedRoute, PublicRoute } from './auth/ProtectedRoute'
 import RestablecerPassword from './views/inicio/RestablecerPassword'
-import CrearEntrevista from './views/mentor/evaluaciones/crearEvaluacion/CrearEvaluaciones'
 import DarEvaluacion from './views/estudiante/evaluaciones/evaluacion/DarEvaluacion'
 import GraciasEvaluacion from './views/estudiante/evaluaciones/evaluacion/GraciasEvaluacion'
+import SaveEvaluaciones from './views/mentor/evaluaciones/saveEvaluacion/SaveEvaluaciones'
 
 export default function Router() {
     return (
@@ -79,7 +79,8 @@ export default function Router() {
                     </ProtectedRoute>
                 }>
                     <Route path='/mentor/evaluaciones' element={<EvaluaionesMentor />} />
-                    <Route path='/mentor/evaluaciones/crear' element={<CrearEntrevista />} />
+                    <Route path='/mentor/evaluaciones/crear' element={<SaveEvaluaciones />} />
+                    <Route path='/mentor/evaluaciones/editar/:evaluacionId' element={<SaveEvaluaciones />} />
                     <Route path='/mentor/evaluacicones/pendientes' element={<EvaluacionesMentorPendientes />} />
                     <Route path='/mentor/entrevistas' element={<EntrevistasMentor />} />
                     <Route path='/mentor/entrevistas/pendientes' element={<EntrevistasMentorPendientes />} />

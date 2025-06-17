@@ -4,8 +4,11 @@ import type { JwTPayload, listEvalaciones, UsuarioInfo } from "../../../../inter
 import { jwtDecode } from "jwt-decode";
 import { alertasSweet } from "./Alertas";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const EvaluaionesMentor = () => {
+
+  const navigate = useNavigate();
 
   const [Usuario, setUsuario] = useState<UsuarioInfo>({
     id: 0,
@@ -114,6 +117,10 @@ const EvaluaionesMentor = () => {
     });
   }
 
+  const actualizarEvaluacion = (id: number) => {
+    navigate(`/mentor/evaluaciones/editar/${id}`);
+  }
+
   const eliminarEvaluacion = async (id: number) => {
     Swal.fire({
       title: 'Eliminar Evaluación',
@@ -203,7 +210,8 @@ const EvaluaionesMentor = () => {
                   <td className="px-6 py-4 text-center">{evaluacion.descripcion}</td>
                   <td className="px-6 py-4 text-center">{evaluacion.activo ? 'Activa' : 'Inactiva'}</td>
                   <td className="px-6 py-4 flex gap-3 justify-center">
-                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2">Editar</button>
+                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2"
+                      onClick={() => actualizarEvaluacion(evaluacion.id)}>Editar</button>
                     <button className="bg-sky-600 text-gray-950 rounded-xl p-2"
                       onClick={() => eliminarEvaluacion(evaluacion.id)}>Eliminar</button>
                     <button className="bg-sky-600 text-gray-950 rounded-xl p-2"

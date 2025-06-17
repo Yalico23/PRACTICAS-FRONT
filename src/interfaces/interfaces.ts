@@ -41,6 +41,7 @@ export interface Pregunta {
 }
 
 export interface EvaluacionData {
+  id ?: number;
   titulo: string;
   descripcion: string;
   tags: string;

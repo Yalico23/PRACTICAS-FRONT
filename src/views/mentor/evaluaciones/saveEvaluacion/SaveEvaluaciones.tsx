@@ -4,9 +4,14 @@ import { jwtDecode } from "jwt-decode";
 import EvaluacionForm from "./EvaluacionForm";
 import PreguntasList from "./PreguntasList";
 import PreguntaModal from "./PreguntaModal";
-import { cargarUsuario } from "./Helper";
+import { actualizarEvaluacion, cargarEvaluacion, cargarUsuario, crearEvaluacion } from "./Helper";
+import { useParams, useNavigate } from "react-router-dom";
 
-const CrearEvaluaciones = () => {
+const SaveEvaluaciones = () => {
+
+  const navigate = useNavigate();
+  const { evaluacionId } = useParams<{ evaluacionId?: string }>();
+
   const [Usuario, setUsuario] = useState<UsuarioInfo>({
     id: 0,
     nombre: "",
@@ -15,6 +20,7 @@ const CrearEvaluaciones = () => {
   });
 
   const [evaluacion, setEvaluacion] = useState<EvaluacionData>({
+    id: evaluacionId ? parseInt(evaluacionId) : 0,
     titulo: "",
     descripcion: "",
     tags: "",
@@ -44,6 +50,22 @@ const CrearEvaluaciones = () => {
       const data = await cargarUsuario(decoded.email, token);
       setUsuario(data);
       setEvaluacion(prev => ({ ...prev, mentorId: data.id }));
+      if (evaluacionId) {
+        const evaluacionCargada = await cargarEvaluacion(parseInt(evaluacionId), token)
+        if(!evaluacionCargada){
+          console.error("Error al cargar la evaluación");
+          navigate('/mentor/evaluaciones');
+          return;
+        }
+        setEvaluacion({
+          id: evaluacionCargada.id,
+          titulo: evaluacionCargada.titulo,
+          descripcion: evaluacionCargada.descripcion,
+          tags: evaluacionCargada.tags,
+          mentorId: data.id,
+          preguntas: evaluacionCargada.preguntas || []
+        })
+      }
     };
     fetchUsuario();
   }, []);
@@ -129,33 +151,28 @@ const CrearEvaluaciones = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/evaluaciones/crear', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(evaluacion)
-      });
-
-      if (response.ok) {
-        alert("Evaluación creada exitosamente");
-        setEvaluacion({
-          titulo: "",
-          descripcion: "",
-          tags: "",
-          mentorId: Usuario.id,
-          preguntas: []
-        });
+      if (evaluacionId!== undefined) {
+        await actualizarEvaluacion(evaluacion, token)
       } else {
-        alert("Error al crear la evaluación");
-        console.error(response)
+        await crearEvaluacion(evaluacion, token)
       }
     } catch (error) {
       console.error("Error:", error);
       alert("Error de conexión");
+    } finally {
+      limpiarFormulario();
     }
   };
+
+  const limpiarFormulario = () => {
+    setEvaluacion({
+      titulo: "",
+      descripcion: "",
+      tags: "",
+      mentorId: Usuario.id,
+      preguntas: []
+    });
+  }
 
   const totalPuntos = calcularTotalPuntos();
   const puntosDisponibles = calcularPuntosDisponibles();
@@ -213,7 +230,7 @@ const CrearEvaluaciones = () => {
           onClick={handleSubmit}
           className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
-          Crear Evaluación
+          {evaluacionId ? "Actualizar Evaluación" : "Crear Evaluación"}
         </button>
       </div>
 
@@ -229,4 +246,4 @@ const CrearEvaluaciones = () => {
   );
 };
 
-export default CrearEvaluaciones;
+export default SaveEvaluaciones;
