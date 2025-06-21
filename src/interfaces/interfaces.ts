@@ -84,3 +84,18 @@ export type RespuestaEstudiante = {
     id: number;
   };
 }
+
+// primera parte de evaluaciones pendientes parte del mentor
+export interface EvaluacionPendiente {
+  id: number;
+  titulo: string;
+  tags: string;
+  fechaCreacion: string;
+}
+
+// EvaluacionesEstudiantestes
+export interface EvaluacionEstudianteResponse {
+  idEvaluacionEstudiante: number;
+  nombreEstudiante: string;
+  notaFinal: number
+}

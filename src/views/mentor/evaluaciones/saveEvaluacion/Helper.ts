@@ -79,3 +79,34 @@ export const cargarEvaluacion = async (idEvaluacion: number, token: string) => {
         console.error("Error de conexión:", error);
     }
 }
+
+type Tecnologias = {
+    value: string;
+    label: string;
+}
+
+export const dataTecnologias: Tecnologias[] = [
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'typescript', label: 'TypeScript' },
+    { value: 'react', label: 'React' },
+    { value: 'angular', label: 'Angular' },
+    { value: 'vue', label: 'Vue.js' },
+    { value: 'nodejs', label: 'Node.js' },
+    { value: 'java', label: 'Java' },
+    { value: 'csharp', label: 'C#' },
+    { value: 'python', label: 'Python' },
+    { value: 'php', label: 'PHP' },
+    { value: 'go', label: 'Go' },
+    { value: 'rust', label: 'Rust' },
+    { value: 'kotlin', label: 'Kotlin' },
+    { value: 'swift', label: 'Swift' },
+    { value: 'flutter', label: 'Flutter' },
+    { value: 'react-native', label: 'React Native' },
+    { value: 'html-css', label: 'HTML/CSS' },
+    { value: 'sql', label: 'SQL' },
+    { value: 'mongodb', label: 'MongoDB' },
+    { value: 'docker', label: 'Docker' },
+    { value: 'aws', label: 'AWS' },
+    { value: 'azure', label: 'Azure' },
+    { value: 'otros', label: 'Otros' }
+]

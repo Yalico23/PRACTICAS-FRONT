@@ -7,7 +7,7 @@ import Entrevista from './views/estudiante/entrevistas/Entrevista'
 import MainLayoutEstudiante from './layouts/estudiante/MainLayoutEstudiante'
 import MainLayoutMentor from './layouts/mentor/MainLayoutMentor'
 import EvaluaionesMentor from './views/mentor/evaluaciones/listaEvaluaciones/EvaluaionesMentor'
-import EvaluacionesMentorPendientes from './views/mentor/evaluaciones/EvaluacionesMentorPendientes'
+import EvaluacionesMentorPendientes from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluacionesMentorPendientes'
 import EntrevistasMentor from './views/mentor/entrevistas/EntrevistasMentor'
 import EntrevistasMentorPendientes from './views/mentor/entrevistas/EntrevistasMentorPendientes'
 import ResultadosMentor from './views/mentor/resultados/ResultadosMentor'
@@ -19,6 +19,8 @@ import RestablecerPassword from './views/inicio/RestablecerPassword'
 import DarEvaluacion from './views/estudiante/evaluaciones/evaluacion/DarEvaluacion'
 import GraciasEvaluacion from './views/estudiante/evaluaciones/evaluacion/GraciasEvaluacion'
 import SaveEvaluaciones from './views/mentor/evaluaciones/saveEvaluacion/SaveEvaluaciones'
+import EvaluacionesEstudiantes from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluacionesEstudiantes'
+import EvaluarEstudiante from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluarEstudiante.tsx/EvaluarEstudiante'
 
 export default function Router() {
     return (
@@ -63,14 +65,14 @@ export default function Router() {
                     <Route path='/estudiante/progreso' element={<Progreso />} />
                 </Route>
 
-                { /** Fuera del sideBar */ }
+                { /** Fuera del sideBar */}
                 <Route path='/estudiante/evaluacion/:evaluacionId' element={
                     <ProtectedRoute allowedRoles={['ROLE_ESTUDIANTE']}>
                         <DarEvaluacion />
                     </ProtectedRoute>
-                }/>
+                } />
 
-               <Route path='/componentesPrueba' element={<GraciasEvaluacion  />} /> 
+                <Route path='/componentesPrueba' element={<GraciasEvaluacion />} />
 
                 {/* Rutas protegidas para mentores */}
                 <Route element={
@@ -82,12 +84,16 @@ export default function Router() {
                     <Route path='/mentor/evaluaciones/crear' element={<SaveEvaluaciones />} />
                     <Route path='/mentor/evaluaciones/editar/:evaluacionId' element={<SaveEvaluaciones />} />
                     <Route path='/mentor/evaluacicones/pendientes' element={<EvaluacionesMentorPendientes />} />
+                    <Route path='/mentor/evaluacicones/pendientes/:idEvaluacion/:titulo'
+                        element={<EvaluacionesEstudiantes />} />
+                    <Route path='/mentor/evaluaciones/:idEvaluacion/:idEvaluacionEstudiante/evaluar'
+                        element={<EvaluarEstudiante />} />
                     <Route path='/mentor/entrevistas' element={<EntrevistasMentor />} />
                     <Route path='/mentor/entrevistas/pendientes' element={<EntrevistasMentorPendientes />} />
                     <Route path='/mentor/resultados' element={<ResultadosMentor />} />
                 </Route>
 
-                
+
 
                 {/* Ruta catch-all para 404 */}
                 <Route path='*' element={<Navigate to="/" replace />} />

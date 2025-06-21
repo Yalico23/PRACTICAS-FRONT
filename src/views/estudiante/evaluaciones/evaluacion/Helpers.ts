@@ -54,7 +54,6 @@ export const verificarSiRespondioEvaluacion = async (idEvaluacion: number, idUsu
         Authorization: `Bearer ${token}`
       }
     });
-    console.log(response);
     if (!response.ok) {
       return true;
     }

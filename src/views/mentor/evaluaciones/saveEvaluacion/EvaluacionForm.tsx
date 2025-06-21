@@ -1,5 +1,5 @@
 import type { EvaluacionData } from "../../../../interfaces/interfaces";
-
+import { dataTecnologias } from "./Helper";
 
 interface EvaluacionFormProps {
   evaluacion: EvaluacionData;
@@ -32,14 +32,19 @@ const EvaluacionForm = ({ evaluacion, onInputChange }: EvaluacionFormProps) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Tecnología</label>
-        <input
-          type="text"
+        <label>Tecnología</label>
+        <select
           value={evaluacion.tags}
           onChange={(e) => onInputChange('tags', e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
-          placeholder="Ingrese las tecnologías"
-        />
+        >
+          <option value="" disabled>-- Selecciona Una tecnologia ---</option>
+          {dataTecnologias.map((tech) => (
+            <option key={tech.value} value={tech.value}>
+              {tech.label}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );
