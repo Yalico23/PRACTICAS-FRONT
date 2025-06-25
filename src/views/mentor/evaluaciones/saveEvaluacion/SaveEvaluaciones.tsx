@@ -6,6 +6,7 @@ import PreguntasList from "./PreguntasList";
 import PreguntaModal from "./PreguntaModal";
 import { actualizarEvaluacion, cargarEvaluacion, cargarUsuario, crearEvaluacion } from "./Helper";
 import { useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const SaveEvaluaciones = () => {
 
@@ -94,6 +95,15 @@ const SaveEvaluaciones = () => {
     setEditingIndex(null);
   };
 
+  const showMessageModasl = (message: string, tipo: 'success' | 'error' | 'warning' | 'info' | 'question') => {
+    Swal.fire({
+      title: tipo === 'success' ? 'Éxito' : 'Error',
+      text: message,
+      icon: tipo,
+      confirmButtonText: 'Aceptar'
+    });
+  }
+
   const handleSavePregunta = (pregunta: any) => {
     const totalActual = calcularTotalPuntos();
     const valorPreguntaOriginal = editingIndex !== null ? evaluacion.preguntas[editingIndex].valor : 0;
@@ -102,13 +112,13 @@ const SaveEvaluaciones = () => {
     // Validar que no exceda los 20 puntos
     if (nuevoTotal > 20) {
       const puntosDisponibles = 20 - (totalActual - valorPreguntaOriginal);
-      alert(`No se puede agregar esta pregunta. Solo tienes ${puntosDisponibles} puntos disponibles. La suma total debe ser exactamente 20 puntos.`);
+      showMessageModasl(`No se puede agregar esta pregunta. Solo tienes ${puntosDisponibles} puntos disponibles. La suma total debe ser exactamente 20 puntos.`, 'warning');
       return;
     }
 
     if (nuevoTotal < 1) {
       const puntosDisponibles = 20 - (totalActual - valorPreguntaOriginal);
-      alert(`No se puede agregar esta pregunta. Debes asignar al menos 1 punto. Actualmente tienes ${puntosDisponibles} puntos disponibles.`);
+      showMessageModasl(`No se puede agregar esta pregunta. Debes asignar al menos 1 punto. Actualmente tienes ${puntosDisponibles} puntos disponibles.`, 'warning');
       return;
     }
 
@@ -135,30 +145,34 @@ const SaveEvaluaciones = () => {
 
   const handleSubmit = async () => {
     if (!evaluacion.titulo.trim() || !evaluacion.descripcion.trim() || !evaluacion.tags.trim()) {
-      alert("Por favor complete todos los campos requeridos");
+      showMessageModasl("Por favor complete todos los campos requeridos", 'warning');
       return;
     }
 
     if (evaluacion.preguntas.length === 0) {
-      alert("Debe agregar al menos una pregunta");
+      showMessageModasl("Debe agregar al menos una pregunta a la evaluación", 'warning');
       return;
     }
 
     const totalPuntos = calcularTotalPuntos();
     if (totalPuntos !== 20) {
-      alert(`La suma total de puntos debe ser exactamente 20. Actualmente tiene ${totalPuntos} puntos.`);
+      showMessageModasl(`La suma total de puntos debe ser exactamente 20. Actualmente tiene ${totalPuntos} puntos.`, 'warning');
       return;
     }
 
     try {
       if (evaluacionId!== undefined) {
         await actualizarEvaluacion(evaluacion, token)
+        showMessageModasl("Evaluación actualizada correctamente", 'success');
+        navigate('/mentor/evaluaciones');
       } else {
         await crearEvaluacion(evaluacion, token)
+        showMessageModasl("Evaluación creada correctamente", 'success');
+        navigate('/mentor/evaluaciones');
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error de conexión");
+      showMessageModasl("Ocurrió un error al guardar la evaluación. Por favor, inténtelo de nuevo más tarde.", 'error');
     } finally {
       limpiarFormulario();
     }
@@ -178,8 +192,8 @@ const SaveEvaluaciones = () => {
   const puntosDisponibles = calcularPuntosDisponibles();
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white">
-      <h1 className="text-2xl font-bold mb-6">Crear Evaluación</h1>
+    <div className=" mx-auto mt-4 p-6 bg-[#383b3f]">
+      <h1 className="text-2xl font-bold mb-6 text-[#F8F9FA]">Crear Evaluación</h1>
 
       <EvaluacionForm
         evaluacion={evaluacion}

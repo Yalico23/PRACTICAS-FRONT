@@ -54,6 +54,7 @@ export default function SideBarMentor() {
       title: '¿Estás seguro?',
       text: "¡Cerrar sesión eliminará tu sesión actual!",
       icon: 'warning',
+      background: '#E9ECEF',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
@@ -73,7 +74,7 @@ export default function SideBarMentor() {
 
   return (
     <>
-      <div className="w-64 h-screen border-r shadow-sm flex flex-col justify-between bg-[#1D1D1D]">
+      <div className="w-64 shadow-sm shadow-white flex flex-col justify-between bg-[#2D2D2D] rounded-2xl m-2">
         <div>
           <div className="flex flex-col items-center py-6 border-b">
             <IconPhChalkboardTeacherThin className="size-14 text-white" />
@@ -85,7 +86,7 @@ export default function SideBarMentor() {
             <Enlace enlace="/mentor/evaluaciones">
               Evaluaciones
             </Enlace>
-            <Enlace enlace="/mentor/evaluacicones/pendientes">
+            <Enlace enlace="/mentor/evaluaciones/pendientes">
               Evaluaciones Pendientes
             </Enlace>
             <Enlace enlace="/mentor/entrevistas">
@@ -101,7 +102,7 @@ export default function SideBarMentor() {
         </div>
 
         <div className="px-4 py-4">
-          <Button onClick={cerrarSesion}>
+          <Button onClick={cerrarSesion} className="w-full bg-[#DC3545] hover:bg-[#C82333] text-white">
             <span className="text-sm font-semibold">Cerrar Sesión</span>
           </Button>
         </div>

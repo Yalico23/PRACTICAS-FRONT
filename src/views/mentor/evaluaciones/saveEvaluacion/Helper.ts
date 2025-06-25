@@ -86,27 +86,15 @@ type Tecnologias = {
 }
 
 export const dataTecnologias: Tecnologias[] = [
-    { value: 'javascript', label: 'JavaScript' },
-    { value: 'typescript', label: 'TypeScript' },
-    { value: 'react', label: 'React' },
-    { value: 'angular', label: 'Angular' },
-    { value: 'vue', label: 'Vue.js' },
-    { value: 'nodejs', label: 'Node.js' },
-    { value: 'java', label: 'Java' },
-    { value: 'csharp', label: 'C#' },
-    { value: 'python', label: 'Python' },
-    { value: 'php', label: 'PHP' },
-    { value: 'go', label: 'Go' },
-    { value: 'rust', label: 'Rust' },
-    { value: 'kotlin', label: 'Kotlin' },
-    { value: 'swift', label: 'Swift' },
-    { value: 'flutter', label: 'Flutter' },
-    { value: 'react-native', label: 'React Native' },
-    { value: 'html-css', label: 'HTML/CSS' },
-    { value: 'sql', label: 'SQL' },
-    { value: 'mongodb', label: 'MongoDB' },
-    { value: 'docker', label: 'Docker' },
-    { value: 'aws', label: 'AWS' },
-    { value: 'azure', label: 'Azure' },
-    { value: 'otros', label: 'Otros' }
+    { value: 'javascript', label: 'JavaScript' }, //ya esta
+    { value: 'typescript', label: 'TypeScript' }, //ya esta
+    { value: 'react', label: 'React' }, //ya esta
+    { value: 'angular', label: 'Angular' }, //ya esta
+    { value: 'vue', label: 'Vue.js' }, //ya esta
+    { value: 'nodejs', label: 'Node.js' }, //ya esta
+    { value: 'java', label: 'Java' }, //ya esta
+    { value: 'csharp', label: 'C#' }, //ya esta
+    { value: 'python', label: 'Python' }, //ya esta
+    { value: 'php', label: 'PHP' }, //ya esta
+    { value: 'otros', label: '-- Otros --' }
 ]

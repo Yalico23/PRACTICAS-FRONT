@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import TiempoSelector from "./TiempoSelector";
 import OpcionesRespuesta from "./OpcionesRespuesta";
 import type { OpcionRespuesta, Pregunta } from "../../../../interfaces/interfaces";
+import Swal from "sweetalert2";
 
 interface PreguntaModalProps {
   pregunta?: Pregunta;
@@ -42,9 +43,18 @@ const PreguntaModal = ({ pregunta, isEditing, onSave, onClose }: PreguntaModalPr
     setCurrentPregunta(prev => ({ ...prev, opcionRespuestas: opciones }));
   };
 
+  const showMessageModasl = (message: string, tipo: 'success' | 'error' | 'warning' | 'info' | 'question') => {
+      Swal.fire({
+        title: tipo === 'success' ? 'Éxito' : 'Error',
+        text: message,
+        icon: tipo,
+        confirmButtonText: 'Aceptar'
+      });
+    }
+
   const savePregunta = () => {
     if (!currentPregunta.pregunta.trim()) {
-      alert("El problema de ítem es requerido");
+      showMessageModasl("El campo 'Problema de ítem' es obligatorio.", 'warning');
       return;
     }
 

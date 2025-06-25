@@ -8,8 +8,8 @@ import MainLayoutEstudiante from './layouts/estudiante/MainLayoutEstudiante'
 import MainLayoutMentor from './layouts/mentor/MainLayoutMentor'
 import EvaluaionesMentor from './views/mentor/evaluaciones/listaEvaluaciones/EvaluaionesMentor'
 import EvaluacionesMentorPendientes from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluacionesMentorPendientes'
-import EntrevistasMentor from './views/mentor/entrevistas/EntrevistasMentor'
-import EntrevistasMentorPendientes from './views/mentor/entrevistas/EntrevistasMentorPendientes'
+import EntrevistasMentor from './views/mentor/entrevistas/entrevistas/EntrevistasMentor'
+import EntrevistasMentorPendientes from './views/mentor/entrevistas/entrevistasPendientes/EntrevistasMentorPendientes'
 import ResultadosMentor from './views/mentor/resultados/ResultadosMentor'
 import Login from './views/inicio/Login'
 import RecuperarPassword from './views/inicio/RecuperarPassword'
@@ -21,6 +21,7 @@ import GraciasEvaluacion from './views/estudiante/evaluaciones/evaluacion/Gracia
 import SaveEvaluaciones from './views/mentor/evaluaciones/saveEvaluacion/SaveEvaluaciones'
 import EvaluacionesEstudiantes from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluacionesEstudiantes'
 import EvaluarEstudiante from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluarEstudiante.tsx/EvaluarEstudiante'
+import SaveEntrevista from './views/mentor/entrevistas/entrevistas/saveEntrevista/SaveEntrevista'
 
 export default function Router() {
     return (
@@ -83,12 +84,14 @@ export default function Router() {
                     <Route path='/mentor/evaluaciones' element={<EvaluaionesMentor />} />
                     <Route path='/mentor/evaluaciones/crear' element={<SaveEvaluaciones />} />
                     <Route path='/mentor/evaluaciones/editar/:evaluacionId' element={<SaveEvaluaciones />} />
-                    <Route path='/mentor/evaluacicones/pendientes' element={<EvaluacionesMentorPendientes />} />
+                    <Route path='/mentor/evaluaciones/pendientes' element={<EvaluacionesMentorPendientes />} />
                     <Route path='/mentor/evaluacicones/pendientes/:idEvaluacion/:titulo'
                         element={<EvaluacionesEstudiantes />} />
                     <Route path='/mentor/evaluaciones/:idEvaluacion/:idEvaluacionEstudiante/evaluar'
                         element={<EvaluarEstudiante />} />
+
                     <Route path='/mentor/entrevistas' element={<EntrevistasMentor />} />
+                    <Route path='/mentor/entrevista/crear' element={<SaveEntrevista/>}/>
                     <Route path='/mentor/entrevistas/pendientes' element={<EntrevistasMentorPendientes />} />
                     <Route path='/mentor/resultados' element={<ResultadosMentor />} />
                 </Route>

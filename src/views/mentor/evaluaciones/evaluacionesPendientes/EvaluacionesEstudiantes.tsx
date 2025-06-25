@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { listarEvaluacionesEstudiante } from "./Helpers";
-import { useParams, useNavigate} from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import type { EvaluacionEstudianteResponse } from "../../../../interfaces/interfaces";
 import Button from "../../../../components/Button";
 
@@ -15,8 +15,8 @@ const EvaluacionesEstudiantes = () => {
 
   useEffect(() => {
     const request = async () => {
-    const dataEvaluaciones = await listarEvaluacionesEstudiante(Number(idEvaluacion), token ?? "");
-    setEvaluacionesPendientes(dataEvaluaciones);
+      const dataEvaluaciones = await listarEvaluacionesEstudiante(Number(idEvaluacion), token ?? "");
+      setEvaluacionesPendientes(dataEvaluaciones);
     }
     request();
   }, [])
@@ -34,37 +34,37 @@ const EvaluacionesEstudiantes = () => {
   }
 
   const getEstadoClase = (notaFinal: number) => {
-    return notaFinal === 0 
-      ? "text-yellow-600 font-semibold" 
-      : "text-green-600 font-semibold";
+    return notaFinal === 0
+      ? "text-[#FFC107] font-semibold"
+      : "text-[#28A745] font-semibold";
   }
 
   return (
     <>
-      <h3 className="my-10 text-center font-mono text-3xl">{titulo}</h3>
-      <Button className="mb-5" onClick={() => navigate(-1)}>
+      <h3 className="my-10 text-center font-mono text-3xl text-[#F8F9FA]">{titulo}</h3>
+      <Button className="mb-5 rounded-sm" onClick={() => navigate(-1)}>
         Regresar
       </Button>
-      <table className="bg-gray-600 w-[97%] mx-auto">
-        <thead>
-          <tr className="text-white">
-            <th className="p-3 text-left">Estudiante</th>
-            <th className="p-3 text-left">Estado</th>
-            <th className="p-3 text-left">Nota</th>
-            <th className="p-3 text-left">Acciones</th>
+      <table className="w-full text-sm text-left rtl:text-right text-[#1D1D1D]">
+        <thead className="text-xs text-[#1D1D1D] uppercase bg-[#E9ECEF]">
+          <tr>
+            <th scope="col" className="px-6 py-3 text-center">Estudiante</th>
+            <th scope="col" className="px-6 py-3 text-center">Estado</th>
+            <th scope="col" className="px-6 py-3 text-center">Nota</th>
+            <th scope="col" className="px-6 py-3 text-center">Acciones</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-[#F8F9FA] border-b dark:border-gray-700 border-gray-200">
           {EvaluacionesPendientes?.map((ep) => (
-            <tr key={ep.idEvaluacionEstudiante} className="border-b border-gray-500">
-              <td className="p-3 text-white">{ep.nombreEstudiante}</td>
-              <td className={`p-3 ${getEstadoClase(ep.notaFinal)}`}>
+            <tr key={ep.idEvaluacionEstudiante}>
+              <td className="px-6 py-4 text-center">{ep.nombreEstudiante}</td>
+              <td className={`px-6 py-4 text-center ${getEstadoClase(ep.notaFinal)}`}>
                 {getEstadoEvaluacion(ep.notaFinal)}
               </td>
-              <td className="p-3 text-white">
+              <td className="px-6 py-4 text-center text-[#1D1D1D]">
                 {ep.notaFinal === 0 ? "-" : ep.notaFinal}
               </td>
-              <td className="p-3">
+              <td className="px-6 py-4 text-center">
                 <Button onClick={() => evaluarEstudiante(ep.idEvaluacionEstudiante)}>
                   {getTextoBoton(ep.notaFinal)}
                 </Button>

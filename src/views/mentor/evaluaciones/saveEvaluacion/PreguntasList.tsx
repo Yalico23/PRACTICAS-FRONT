@@ -36,7 +36,7 @@ const PreguntasList = ({ preguntas, onAddPregunta, onEditPregunta, onRemovePregu
           <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded">
             <div className="flex-1">
               <span className="font-medium">{pregunta.pregunta}</span>
-              <span className="ml-2 text-sm text-gray-500">
+              <span className="ml-2 text-sm text-[#E9ECEF]">
                 ({pregunta.tipoPregunta} - {formatearTiempo(pregunta.tiempo)} - {pregunta.valor} pts)
               </span>
             </div>

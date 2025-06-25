@@ -31,6 +31,7 @@ const Enlace = ({
         <>
             <NavLink
                 to={enlace}
+                end
                 className={({ isActive }) =>
                     classNames(
                         baseStyles,

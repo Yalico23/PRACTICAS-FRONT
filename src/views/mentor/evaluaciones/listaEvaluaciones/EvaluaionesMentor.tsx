@@ -185,15 +185,15 @@ const EvaluaionesMentor = () => {
     <>
       <Link
         to={"/mentor/evaluaciones/crear"}
-        className="mt-6 inline-block bg-[#2272FF] text-white p-2 rounded-xl hover:bg-[#203bd3] transition"
+        className="mt-10 inline-block bg-[#2272FF] text-white p-2 rounded-sm hover:bg-[#203bd3] transition"
       >
         Crear Evaluación
       </Link>
 
       <main className="mt-5">
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <div className="relative overflow-x-auto shadow-md">
+          <table className="w-full text-sm text-left rtl:text-right text-[#1D1D1D]">
+            <thead className="text-xs text-[#1D1D1D] uppercase bg-[#E9ECEF] ">
               <tr>
                 <th scope="col" className="px-6 py-3 text-center">Id</th>
                 <th scope="col" className="px-6 py-3 text-center">Nombre</th>
@@ -202,19 +202,27 @@ const EvaluaionesMentor = () => {
                 <th scope="col" className="px-6 py-3 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+            <tbody className="bg-[#F8F9FA] border-b dark:border-gray-700 border-gray-200">
               {Evaluaciones?.map(evaluacion => (
                 <tr key={evaluacion.id}>
-                  <td className="px-6 py-4 text-center">{evaluacion.id}</td>
+                  <td className="px-6 py-4 text-center font-bold">{evaluacion.id}</td>
                   <td className="px-6 py-4 text-center">{evaluacion.titulo}</td>
                   <td className="px-6 py-4 text-center">{evaluacion.descripcion}</td>
-                  <td className="px-6 py-4 text-center">{evaluacion.activo ? 'Activa' : 'Inactiva'}</td>
-                  <td className="px-6 py-4 flex gap-3 justify-center">
-                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2"
+                  <td className="px-6 py-4 text-center">
+                    <span
+                      className={`p-2 rounded-md text-white font-bold ${evaluacion.activo ? 'bg-[#28A745]' : 'bg-[#FFC107] text-[#2D2D2D]'
+                        }`}
+                    >
+                      {evaluacion.activo ? 'Activa' : 'Inactiva'}
+                    </span>
+
+                  </td>
+                  <td className="px-6 py-4 flex gap-3 justify-center items-center">
+                    <button className="bg-[#FFC107] text-white font-bold rounded-sm p-2"
                       onClick={() => actualizarEvaluacion(evaluacion.id)}>Editar</button>
-                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2"
+                    <button className="bg-[#DC3545] text-white font-bold rounded-sm p-2"
                       onClick={() => eliminarEvaluacion(evaluacion.id)}>Eliminar</button>
-                    <button className="bg-sky-600 text-gray-950 rounded-xl p-2"
+                    <button className="bg-sky-600 text-white font-bold rounded-sm p-2"
                       onClick={() => cambiaEstadoEvalucion(evaluacion.id, evaluacion.activo)}>
                       {evaluacion.activo ? 'Deshabilitar' : 'Habilitar'}
                     </button>

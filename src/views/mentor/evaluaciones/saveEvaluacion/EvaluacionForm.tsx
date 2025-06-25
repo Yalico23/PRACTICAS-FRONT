@@ -10,7 +10,7 @@ const EvaluacionForm = ({ evaluacion, onInputChange }: EvaluacionFormProps) => {
   return (
     <div className="space-y-4 mb-6">
       <div>
-        <label className="block text-sm font-medium mb-1">Título de evaluación</label>
+        <label className="block text-sm  mb-1 text-[#E9ECEF]">Título de evaluación</label>
         <input
           type="text"
           value={evaluacion.titulo}
@@ -21,7 +21,7 @@ const EvaluacionForm = ({ evaluacion, onInputChange }: EvaluacionFormProps) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Descripción</label>
+        <label className="block text-sm mb-1 text-[#E9ECEF]">Descripción</label>
         <input
           type="text"
           value={evaluacion.descripcion}
@@ -32,14 +32,16 @@ const EvaluacionForm = ({ evaluacion, onInputChange }: EvaluacionFormProps) => {
       </div>
 
       <div>
-        <label>Tecnología</label>
+        <label className="text-[#E9ECEF] mb-1">Tecnología</label>
         <select
           value={evaluacion.tags}
           onChange={(e) => onInputChange('tags', e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         >
           <option value="" disabled>-- Selecciona Una tecnologia ---</option>
-          {dataTecnologias.map((tech) => (
+          {dataTecnologias
+          .sort((a, b) => a.label.localeCompare(b.label))
+          .map((tech) => (
             <option key={tech.value} value={tech.value}>
               {tech.label}
             </option>

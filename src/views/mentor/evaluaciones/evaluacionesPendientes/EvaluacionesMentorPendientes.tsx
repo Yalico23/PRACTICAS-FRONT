@@ -33,10 +33,10 @@ const EvaluacionesMentorPendientes = () => {
 
   return (
     <>
-      <main>
+      <main className="mt-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
           {evaluacionesPendientes?.map((ep) => (
-            <div key={ep.id} className="relative flex w-80 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+            <div key={ep.id} className="relative flex w-80 flex-col rounded-xl bg-[#E9ECEF] bg-clip-border text-gray-700 shadow-md">
 
               <div className="relative mx-4 -mt-6 h-40 overflow-hidden rounded-xl bg-clip-border shadow-lg">
                 <img src={`/img/${ep.tags}.jpg`} alt="imagen" className="h-full" />
