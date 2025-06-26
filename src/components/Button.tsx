@@ -6,14 +6,15 @@ type ButtonProps = {
     children: React.ReactNode,
     variant?: ButtonVariant,
     className ?: string,
-    onClick?: () => void
+    onClick?: () => void,
+    disabled?: boolean
 };
 
 const classNames = (...classes: string[]) => {
     return classes.filter(Boolean).join(' ');
 };
 
-const Button = ({ children, variant = "default", className = "", onClick, ...props }: ButtonProps) => {
+const Button = ({ children, variant = "default", className = "", onClick, disabled = false, ...props }: ButtonProps) => {
 
     const baseStyles = "px-4 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none";
 
@@ -27,9 +28,21 @@ const Button = ({ children, variant = "default", className = "", onClick, ...pro
             "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
     }
 
+    const disabledStyles = "opacity-50 cursor-not-allowed";
+
     return (
         <>
-            <button onClick={onClick} className={classNames(baseStyles, variants[variant], className)} {...props}>
+            <button 
+                onClick={onClick} 
+                disabled={disabled}
+                className={classNames(
+                    baseStyles, 
+                    variants[variant], 
+                    disabled ? disabledStyles : "", 
+                    className
+                )} 
+                {...props}
+            >
                 {children}
             </button>
         </>
