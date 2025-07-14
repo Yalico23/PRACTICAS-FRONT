@@ -4,6 +4,8 @@ import TiempoSelector from "./TiempoSelector";
 import OpcionesRespuesta from "./OpcionesRespuesta";
 import type { OpcionRespuesta, Pregunta } from "../../../../interfaces/interfaces";
 import Swal from "sweetalert2";
+import { motion, AnimatePresence } from 'framer-motion';
+
 
 interface PreguntaModalProps {
   pregunta?: Pregunta;
@@ -44,17 +46,22 @@ const PreguntaModal = ({ pregunta, isEditing, onSave, onClose }: PreguntaModalPr
   };
 
   const showMessageModasl = (message: string, tipo: 'success' | 'error' | 'warning' | 'info' | 'question') => {
-      Swal.fire({
-        title: tipo === 'success' ? 'Éxito' : 'Error',
-        text: message,
-        icon: tipo,
-        confirmButtonText: 'Aceptar'
-      });
-    }
+    Swal.fire({
+      title: tipo === 'success' ? 'Éxito' : 'Error',
+      text: message,
+      icon: tipo,
+      confirmButtonText: 'Aceptar'
+    });
+  }
 
   const savePregunta = () => {
     if (!currentPregunta.pregunta.trim()) {
       showMessageModasl("El campo 'Problema de ítem' es obligatorio.", 'warning');
+      return;
+    }
+
+    if(!currentPregunta.valor || currentPregunta.valor < 1) {
+      showMessageModasl("El campo 'Número de Puntos' debe ser un número positivo.", 'warning');
       return;
     }
 
@@ -108,16 +115,25 @@ const PreguntaModal = ({ pregunta, isEditing, onSave, onClose }: PreguntaModalPr
             />
           </div>
 
-          <TiempoSelector 
+          <TiempoSelector
             tiempo={currentPregunta.tiempo}
             onChange={handleTiempoChange}
           />
 
           {currentPregunta.tipoPregunta === 'opcion' && (
-            <OpcionesRespuesta
-              opciones={currentPregunta.opcionRespuestas || []}
-              onChange={handleOpcionesChange}
-            />
+            <AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <OpcionesRespuesta
+                  opciones={currentPregunta.opcionRespuestas || []}
+                  onChange={handleOpcionesChange}
+                />
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
 

@@ -5,11 +5,13 @@ import { jwtDecode } from "jwt-decode";
 import { alertasSweet } from "./Alertas";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import Spinner from "../../../../components/Spinner";
 
 const EvaluaionesMentor = () => {
 
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true)
   const [Usuario, setUsuario] = useState<UsuarioInfo>({
     id: 0,
     nombre: '',
@@ -79,6 +81,7 @@ const EvaluaionesMentor = () => {
 
       const data = await response.json();
       setEvaluaciones(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -181,6 +184,10 @@ const EvaluaionesMentor = () => {
     });
   }
 
+  if (loading) {
+    return <Spinner />
+  }
+  
   return (
     <>
       <Link

@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom"
 
 const EntrevistasMentor = () => {
+  const [loading, setLoading] = useState(true);
+  
   return (
     <>
       <Link

@@ -7,18 +7,14 @@ import PreguntaModal from "./PreguntaModal";
 import { actualizarEvaluacion, cargarEvaluacion, cargarUsuario, crearEvaluacion } from "./Helper";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SaveEvaluaciones = () => {
 
   const navigate = useNavigate();
   const { evaluacionId } = useParams<{ evaluacionId?: string }>();
 
-  const [Usuario, setUsuario] = useState<UsuarioInfo>({
-    id: 0,
-    nombre: "",
-    apellidos: "",
-    email: ""
-  });
+  const [Usuario, setUsuario] = useState<UsuarioInfo>();
 
   const [evaluacion, setEvaluacion] = useState<EvaluacionData>({
     id: evaluacionId ? parseInt(evaluacionId) : 0,
@@ -32,19 +28,8 @@ const SaveEvaluaciones = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || "";
   const decoded = jwtDecode<JwTPayload>(token || "");
-
-  if (!token || !decoded) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-4">Acceso Denegado</h2>
-          <p>No tienes autorización para acceder a esta página</p>
-        </div>
-      </div>
-    );
-  }
 
   useEffect(() => {
     const fetchUsuario = async () => {
@@ -53,7 +38,7 @@ const SaveEvaluaciones = () => {
       setEvaluacion(prev => ({ ...prev, mentorId: data.id }));
       if (evaluacionId) {
         const evaluacionCargada = await cargarEvaluacion(parseInt(evaluacionId), token)
-        if(!evaluacionCargada){
+        if (!evaluacionCargada) {
           console.error("Error al cargar la evaluación");
           navigate('/mentor/evaluaciones');
           return;
@@ -161,7 +146,7 @@ const SaveEvaluaciones = () => {
     }
 
     try {
-      if (evaluacionId!== undefined) {
+      if (evaluacionId !== undefined) {
         await actualizarEvaluacion(evaluacion, token)
         showMessageModasl("Evaluación actualizada correctamente", 'success');
         navigate('/mentor/evaluaciones');
@@ -183,7 +168,7 @@ const SaveEvaluaciones = () => {
       titulo: "",
       descripcion: "",
       tags: "",
-      mentorId: Usuario.id,
+      mentorId: Usuario?.id,
       preguntas: []
     });
   }
@@ -192,7 +177,7 @@ const SaveEvaluaciones = () => {
   const puntosDisponibles = calcularPuntosDisponibles();
 
   return (
-    <div className=" mx-auto mt-4 p-6 bg-[#383b3f]">
+    <div className="mx-auto mt-4 p-6 bg-[#383b3f]">
       <h1 className="text-2xl font-bold mb-6 text-[#F8F9FA]">Crear Evaluación</h1>
 
       <EvaluacionForm
@@ -249,12 +234,21 @@ const SaveEvaluaciones = () => {
       </div>
 
       {showModal && (
-        <PreguntaModal
-          pregunta={editingIndex !== null ? evaluacion.preguntas[editingIndex] : undefined}
-          isEditing={editingIndex !== null}
-          onSave={handleSavePregunta}
-          onClose={closeModal}
-        />
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <PreguntaModal
+              pregunta={editingIndex !== null ? evaluacion.preguntas[editingIndex] : undefined}
+              isEditing={editingIndex !== null}
+              onSave={handleSavePregunta}
+              onClose={closeModal}
+            />
+          </motion.div>
+        </AnimatePresence>
       )}
     </div>
   );

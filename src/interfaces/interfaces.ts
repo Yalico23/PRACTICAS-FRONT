@@ -45,7 +45,7 @@ export interface EvaluacionData {
   titulo: string;
   descripcion: string;
   tags: string;
-  mentorId: number;
+  mentorId?: number;
   preguntas: Pregunta[];
 }
 

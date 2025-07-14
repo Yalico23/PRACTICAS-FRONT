@@ -3,6 +3,7 @@ import { listarEvaluacionesEstudiante } from "./Helpers";
 import { useParams, useNavigate } from "react-router-dom";
 import type { EvaluacionEstudianteResponse } from "../../../../interfaces/interfaces";
 import Button from "../../../../components/Button";
+import Spinner from "../../../../components/Spinner";
 
 
 const EvaluacionesEstudiantes = () => {
@@ -12,11 +13,13 @@ const EvaluacionesEstudiantes = () => {
   const { titulo } = useParams();
   const [EvaluacionesPendientes, setEvaluacionesPendientes] = useState<EvaluacionEstudianteResponse[]>();
   const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const request = async () => {
       const dataEvaluaciones = await listarEvaluacionesEstudiante(Number(idEvaluacion), token ?? "");
       setEvaluacionesPendientes(dataEvaluaciones);
+      setLoading(false);
     }
     request();
   }, [])
@@ -37,6 +40,10 @@ const EvaluacionesEstudiantes = () => {
     return notaFinal === 0
       ? "text-[#FFC107] font-semibold"
       : "text-[#28A745] font-semibold";
+  }
+
+  if(loading){
+    return <Spinner />;
   }
 
   return (

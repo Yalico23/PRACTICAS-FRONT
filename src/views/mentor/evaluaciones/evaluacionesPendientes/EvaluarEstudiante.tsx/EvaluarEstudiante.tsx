@@ -176,7 +176,7 @@ const EvaluarEstudiante: React.FC = () => {
           pregunta: respuesta.preguntaCompleta.pregunta,
           respuestaEstudiante: respuesta.respuesta!,
           valorMaximo: respuesta.preguntaCompleta.valor,
-          //criteriosEvaluacion: respuesta.preguntaCompleta.criteriosEvaluacion // Si tienes este campo
+          criteriosEvaluacion: "Se preciso y conciso en la respuesta, se abordaron todos los puntos clave de la pregunta y se utilizó un lenguaje claro y coherente."
         }));
 
       if (respuestasTexto.length === 0) {
@@ -187,13 +187,15 @@ const EvaluarEstudiante: React.FC = () => {
       const payload = {
         evaluacionId: Number(idEvaluacion),
         estudiante: {
-          id: evaluacionEstudiante.estudiante.id,
-          nombre: evaluacionEstudiante.estudiante.nombre
+          // id: evaluacionEstudiante.estudiante.id,
+          // nombre: evaluacionEstudiante.estudiante.nombre
+          id: 1,
+          nombre: "Oscar Jean Piero Yalico Espinoza"
         },
         respuestasTexto
       };
 
-      const response = await fetch('/api/ia/analizar-respuestas-texto', {
+      const response = await fetch('http://localhost:8080/api/ia/analizar-respuestas-texto', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

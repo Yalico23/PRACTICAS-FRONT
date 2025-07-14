@@ -10,13 +10,10 @@ interface PreguntasListProps {
 
 const PreguntasList = ({ preguntas, onAddPregunta, onEditPregunta, onRemovePregunta }: PreguntasListProps) => {
   // Función para formatear tiempo para mostrar
-  const formatearTiempo = (segundos: number) => {
-    const horas = Math.floor(segundos / 3600);
-    const minutos = Math.floor((segundos % 3600) / 60);
-    if (horas > 0) {
-      return `${horas}h ${minutos}m`;
-    }
-    return `${minutos}m`;
+  const formatearTiempo = (minutos: number) => {
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    return `${horas > 0 ? `${horas}h ` : ''}${mins}m`;
   };
 
   return (

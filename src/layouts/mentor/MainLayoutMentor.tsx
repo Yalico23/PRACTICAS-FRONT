@@ -1,9 +1,8 @@
 import { Outlet } from "react-router-dom"
 import SideBarMentor from "./SideBarMentor"
 
-
-
 const MainLayoutMentor = () => {
+
   return (
     <div className="flex h-screen bg-[#1D1D1D]">
       <SideBarMentor />

@@ -12,6 +12,8 @@
   "dependencies": {
     "@headlessui/react": "^2.2.3",
     "@heroicons/react": "^2.2.0",
+    "chart.js": "^4.5.0",
+    "framer-motion": "^12.23.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.511.0",
     "react": "^19.1.0",

@@ -1,4 +1,6 @@
 import type { OpcionRespuesta } from "../../../../interfaces/interfaces";
+import { motion, AnimatePresence } from 'framer-motion';
+
 
 interface OpcionesRespuestaProps {
   opciones: OpcionRespuesta[];
@@ -34,34 +36,43 @@ const OpcionesRespuesta = ({ opciones, onChange }: OpcionesRespuestaProps) => {
           + Agregar
         </button>
       </div>
-      
+
       <div className="space-y-2">
         {opciones.map((opcion, index) => (
-          <div key={index} className="flex items-center gap-2 p-2 border border-gray-200 rounded">
-            <input
-              type="text"
-              value={opcion.opcionRespuesta}
-              onChange={(e) => updateOpcion(index, 'opcionRespuesta', e.target.value)}
-              className="flex-1 p-1 border border-gray-300 rounded"
-              placeholder="Opción de respuesta"
-            />
-            <label className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={opcion.correcta}
-                onChange={(e) => updateOpcion(index, 'correcta', e.target.checked)}
-              />
-              <span className="text-sm">Correcta</span>
-            </label>
-            <button
-              onClick={() => removeOpcion(index)}
-              className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, x: 100 }} // empieza desplazado a la derecha
+              animate={{ opacity: 1, scale: 1, x: 0 }}     // se posiciona en su lugar
+              exit={{ opacity: 0, scale: 0.9, x: 100 }}    // al salir vuelve a la derecha
+              transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              ×
-            </button>
-          </div>
+              <div key={index} className="flex items-center gap-2 p-2 border border-gray-200 rounded">
+                <input
+                  type="text"
+                  value={opcion.opcionRespuesta}
+                  onChange={(e) => updateOpcion(index, 'opcionRespuesta', e.target.value)}
+                  className="flex-1 p-1 border border-gray-300 rounded"
+                  placeholder="Opción de respuesta"
+                />
+                <label className="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    checked={opcion.correcta}
+                    onChange={(e) => updateOpcion(index, 'correcta', e.target.checked)}
+                  />
+                  <span className="text-sm">Correcta</span>
+                </label>
+                <button
+                  onClick={() => removeOpcion(index)}
+                  className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  ×
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         ))}
-        
+
         {opciones.length === 0 && (
           <div className="text-center text-gray-500 py-4">
             No hay opciones agregadas. Haz clic en "Agregar" para crear una opción.

@@ -3,6 +3,7 @@ import type { JwTPayload, EvaluacionPendiente, UsuarioInfo } from "../../../../i
 import { cargarUsuario, listarEvaluacionesPendientes } from "./Helpers";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import Spinner from "../../../../components/Spinner";
 
 const EvaluacionesMentorPendientes = () => {
 
@@ -11,7 +12,7 @@ const EvaluacionesMentorPendientes = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const decode = jwtDecode<JwTPayload>(token ?? "");
-
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsuario = async () => {
@@ -19,6 +20,7 @@ const EvaluacionesMentorPendientes = () => {
         const dataUsuario: UsuarioInfo = await cargarUsuario(decode.email, token ?? "");
         const dataEvaluacionesPendientes = await listarEvaluacionesPendientes(dataUsuario.id, token ?? "");
         setEvaluacionesPendientes(dataEvaluacionesPendientes);
+        setLoading(false);
       } catch (error) {
         console.error("Error al cargar el usuario:", error);
       }
@@ -29,6 +31,10 @@ const EvaluacionesMentorPendientes = () => {
 
   const EvaluacionesEstudiantes = (id: number, titulo: string) => {
     navigate(`/mentor/evaluacicones/pendientes/${id}/${titulo}`);
+  }
+
+  if(loading){
+    return <Spinner />
   }
 
   return (
