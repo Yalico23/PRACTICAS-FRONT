@@ -1,45 +1,8 @@
-import { useParams , useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import { cargarEvaluacion, cargarEvaluacionEstudiante } from "./Helpers";
-import type { Evaluacion, EvaluacionEstudiante, RespuestaEvaluada, OpcionRespuesta, Pregunta } from "./types";
+import type { Evaluacion, EvaluacionEstudiante, RespuestaEvaluada, OpcionRespuesta, Pregunta, AnalisisIA, RespuestaTextoIA, RespuestaIA } from "./types";
 import Button from "../../../../../components/Button";
-
-// Nuevos tipos para la IA
-interface RespuestaTextoIA {
-  preguntaId: number;
-  pregunta: string;
-  respuestaEstudiante: string;
-  valorMaximo: number;
-  criteriosEvaluacion?: string;
-}
-
-interface AnalisisIA {
-  preguntaId: number;
-  notaSugerida: number;
-  notaMaxima: number;
-  porcentajeAcierto: number;
-  comentarios: {
-    fortalezas: string[];
-    debilidades: string[];
-    sugerencias: string[];
-    comentarioGeneral: string;
-  };
-  nivelConfianza: number;
-  requiereRevisionManual: boolean;
-}
-
-interface RespuestaIA {
-  success: boolean;
-  data: {
-    respuestasAnalizadas: AnalisisIA[];
-    resumenGeneral: {
-      promedioSugerido: number;
-      comentarioGeneral: string;
-      recomendaciones: string[];
-    };
-  };
-  message: string;
-}
 
 const EvaluarEstudiante: React.FC = () => {
   const navigate = useNavigate();
@@ -47,7 +10,9 @@ const EvaluarEstudiante: React.FC = () => {
 
   const [evaluacion, setEvaluacion] = useState<Evaluacion | null>(null);
   const [evaluacionEstudiante, setEvaluacionEstudiante] = useState<EvaluacionEstudiante | null>(null);
-  
+
+  const [feedback, setFeedback] = useState<string>('');
+
   const [respuestasEvaluadas, setRespuestasEvaluadas] = useState<RespuestaEvaluada[]>([]);
   const [notaFinal, setNotaFinal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -59,6 +24,8 @@ const EvaluarEstudiante: React.FC = () => {
   const [mostrarSugerenciasIA, setMostrarSugerenciasIA] = useState<boolean>(false);
 
   const token = localStorage.getItem("token") || "";
+
+  const [guardando, setGuardando] = useState<boolean>(false);
 
   useEffect(() => {
     const request = async (): Promise<void> => {
@@ -74,6 +41,8 @@ const EvaluarEstudiante: React.FC = () => {
 
         setEvaluacion(dataEvaluacion);
         setEvaluacionEstudiante(dataEvaluacionEstudiante);
+        setFeedback(dataEvaluacionEstudiante.feedback ?? '');
+
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido');
       } finally {
@@ -166,8 +135,8 @@ const EvaluarEstudiante: React.FC = () => {
 
       // Filtrar solo respuestas de texto que fueron respondidas
       const respuestasTexto: RespuestaTextoIA[] = respuestasEvaluadas
-        .filter(respuesta => 
-          respuesta.respondida && 
+        .filter(respuesta =>
+          respuesta.respondida &&
           respuesta.preguntaCompleta.tipoPregunta === 'texto' &&
           respuesta.respuesta
         )
@@ -186,12 +155,6 @@ const EvaluarEstudiante: React.FC = () => {
 
       const payload = {
         evaluacionId: Number(idEvaluacion),
-        estudiante: {
-          // id: evaluacionEstudiante.estudiante.id,
-          // nombre: evaluacionEstudiante.estudiante.nombre
-          id: 1,
-          nombre: "Oscar Jean Piero Yalico Espinoza"
-        },
         respuestasTexto
       };
 
@@ -205,7 +168,7 @@ const EvaluarEstudiante: React.FC = () => {
       });
 
       const data: RespuestaIA = await response.json();
-
+      console.log('Respuesta de IA:', data);
       if (data.success) {
         // Guardar análisis en el Map
         const nuevoAnalisis = new Map<number, AnalisisIA>();
@@ -252,12 +215,125 @@ const EvaluarEstudiante: React.FC = () => {
     return 'No respondida';
   };
 
-  const handleGuardarEvaluacion = (): void => {
-    console.log('Evaluación final a enviar:', {
-      idEvaluacionEstudiante: idEvaluacionEstudiante ? Number(idEvaluacionEstudiante) : null,
-      respuestasEvaluadas,
-      notaFinal
+  const validarEvaluacion = (): { valida: boolean; errores: string[] } => {
+    const errores: string[] = [];
+
+    // Validar que haya respuestas evaluadas
+    if (respuestasEvaluadas.length === 0) {
+      errores.push('No hay respuestas para evaluar');
+    }
+
+    // Validar que todas las preguntas respondidas tengan nota válida
+    respuestasEvaluadas.forEach((respuesta, index) => {
+      if (respuesta.respondida) {
+        if (respuesta.nota < 0) {
+          errores.push(`La nota de la pregunta ${index + 1} no puede ser negativa`);
+        }
+        if (respuesta.nota > respuesta.preguntaCompleta.valor) {
+          errores.push(`La nota de la pregunta ${index + 1} no puede ser mayor a ${respuesta.preguntaCompleta.valor}`);
+        }
+      }
     });
+
+    // Validar nota final
+    if (notaFinal < 0) {
+      errores.push('La nota final no puede ser negativa');
+    }
+
+    if (notaFinal > 20) {
+      errores.push('La nota final no puede ser mayor a 20');
+    }
+
+    // Validar feedback (opcional, pero si está presente debe tener contenido)
+    if ((evaluacionEstudiante?.feedback ?? '').trim().length === 0) {
+      errores.push('El feedback no puede estar vacío');
+    }
+
+    return {
+      valida: errores.length === 0,
+      errores
+    };
+  };
+
+  const onEvaluacionGuardadaExitosamente = (): void => {
+    // Aquí puedes agregar tu lógica personalizada
+    console.log('Evaluación guardada exitosamente');
+  };
+
+  const handleGuardarEvaluacion = async (): Promise<void> => {
+    // Validar antes de enviar
+    const { valida, errores } = validarEvaluacion();
+
+    if (!valida) {
+      const mensajeError = errores.join('\n• ');
+      alert(`Se encontraron los siguientes errores:\n• ${mensajeError}`);
+      return;
+    }
+
+    try {
+      setGuardando(true);
+
+      // Preparar las notas de las preguntas (solo las respondidas)
+      const notasPreguntas = respuestasEvaluadas
+        .filter(respuesta => respuesta.respondida)
+        .map(respuesta => ({
+          idPregunta: respuesta.preguntaCompleta.id,
+          notaPregunta: respuesta.nota
+        }));
+
+      // Preparar el payload según el formato requerido
+      const payload = {
+        idEvaluacion: Number(idEvaluacionEstudiante), // Según tu comentario, este es el idEvaluacionEstudiante
+        feedback: feedback.trim(),
+        notaFinal: notaFinal,
+        notasPreguntas: notasPreguntas
+      };
+
+      console.log('Payload a enviar:', payload);
+
+      // Realizar la petición
+      const response = await fetch('http://localhost:8080/api/evaluacionEstudiante/calificarEvaluacion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      // Verificar si la respuesta es exitosa (200)
+      if (response.ok) {
+        // Llamar a la función de éxito
+        onEvaluacionGuardadaExitosamente();
+      } else {
+        // Manejar errores del servidor
+        let errorMessage = 'Error al guardar la evaluación';
+
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // Si no se puede parsear el JSON, usar mensaje genérico
+          errorMessage = `Error del servidor: ${response.status} ${response.statusText}`;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+    } catch (error) {
+      console.error('Error al guardar evaluación:', error);
+
+      let mensajeError = 'Ocurrió un error inesperado al guardar la evaluación';
+
+      if (error instanceof Error) {
+        mensajeError = error.message;
+      }
+
+      alert(`Error al guardar la evaluación:\n${mensajeError}`);
+
+    } finally {
+      setGuardando(false);
+    }
   };
 
   if (loading) {
@@ -310,7 +386,7 @@ const EvaluarEstudiante: React.FC = () => {
       <div className="space-y-6">
         {respuestasEvaluadas.map((respuesta, index) => {
           const analisisRespuesta = analisisIA.get(respuesta.preguntaCompleta.id);
-          
+
           return (
             <div key={respuesta.id} className="border border-gray-200 rounded-lg p-6">
               <div className="mb-4">
@@ -421,9 +497,6 @@ const EvaluarEstudiante: React.FC = () => {
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-medium text-purple-800 flex items-center">
                           🤖 Análisis de IA
-                          <span className="ml-2 text-sm bg-purple-200 px-2 py-1 rounded">
-                            Confianza: {Math.round(analisisRespuesta.nivelConfianza * 100)}%
-                          </span>
                         </h4>
                         <button
                           onClick={() => aplicarSugerenciaIA(respuesta.preguntaCompleta.id)}
@@ -432,13 +505,13 @@ const EvaluarEstudiante: React.FC = () => {
                           Aplicar sugerencia
                         </button>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <p className="text-purple-700">
                           <strong>Nota sugerida:</strong> {analisisRespuesta.notaSugerida}/{analisisRespuesta.notaMaxima}
                           ({Math.round(analisisRespuesta.porcentajeAcierto)}%)
                         </p>
-                        
+
                         <div className="text-sm">
                           <p className="text-purple-700 mb-1"><strong>Comentario:</strong></p>
                           <p className="text-purple-600">{analisisRespuesta.comentarios.comentarioGeneral}</p>
@@ -491,7 +564,7 @@ const EvaluarEstudiante: React.FC = () => {
                       className="border border-gray-300 rounded px-3 py-2 w-20 text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <span className="text-[#F8F9FA]">/ {respuesta.preguntaCompleta.valor}</span>
-                    
+
                     {analisisRespuesta && (
                       <span className="text-purple-600 text-sm">
                         (IA sugiere: {analisisRespuesta.notaSugerida})
@@ -510,7 +583,10 @@ const EvaluarEstudiante: React.FC = () => {
         <textarea
           className="w-full h-24 p-3 border border-gray-300 rounded focus:ring-2 outline-none resize-none"
           placeholder="Escribe aquí tus comentarios sobre la evaluación..."
-        ></textarea>
+          value={feedback}
+          onChange={(e) => setFeedback(e.target.value)}
+        />
+
       </div>
 
       <div className="mt-8 p-6 bg-gray-50 rounded-lg">
@@ -532,10 +608,14 @@ const EvaluarEstudiante: React.FC = () => {
         </div>
 
         <button
-          className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className={`mt-4 px-6 py-2 rounded-lg transition-colors ${guardando
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-blue-600 hover:bg-blue-700'
+            } text-white`}
           onClick={handleGuardarEvaluacion}
+          disabled={guardando}
         >
-          Guardar Evaluación
+          {guardando ? 'Guardando...' : 'Guardar Evaluación'}
         </button>
       </div>
     </div>

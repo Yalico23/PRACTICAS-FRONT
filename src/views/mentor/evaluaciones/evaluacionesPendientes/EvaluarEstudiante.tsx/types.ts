@@ -32,6 +32,7 @@ export interface RespuestaEstudiante {
 export interface EvaluacionEstudiante {
   id: number;
   respuestaEstudiantes: RespuestaEstudiante[];
+  feedback: string | null;
 }
 
 export interface RespuestaEvaluada {
@@ -53,4 +54,36 @@ export interface ResumenEvaluacion {
   preguntasRespondidas: number;
   totalPreguntas: number;
   notaFinal: number;
+}
+
+// 
+
+export interface RespuestaTextoIA {
+  preguntaId: number;
+  pregunta: string;
+  respuestaEstudiante: string;
+  valorMaximo: number;
+  criteriosEvaluacion?: string;
+}
+
+export interface AnalisisIA {
+  preguntaId: number;
+  notaSugerida: number;
+  notaMaxima: number;
+  porcentajeAcierto: number;
+  comentarios: {
+    fortalezas: string[];
+    debilidades: string[];
+    sugerencias: string[];
+    comentarioGeneral: string;
+  };
+  requiereRevisionManual: boolean;
+}
+
+export interface RespuestaIA {
+  success: boolean;
+  data: {
+    respuestasAnalizadas: AnalisisIA[];
+  };
+  message: string;
 }
