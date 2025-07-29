@@ -92,6 +92,7 @@ export default function Router() {
 
                     <Route path='/mentor/entrevistas' element={<EntrevistasMentor />} />
                     <Route path='/mentor/entrevista/crear' element={<SaveEntrevista/>}/>
+                    <Route path='/mentor/entrevista/editar/:entrevistaId' element={<SaveEntrevista/>}/>
                     <Route path='/mentor/entrevistas/pendientes' element={<EntrevistasMentorPendientes />} />
                     <Route path='/mentor/resultados' element={<ResultadosMentor />} />
                 </Route>

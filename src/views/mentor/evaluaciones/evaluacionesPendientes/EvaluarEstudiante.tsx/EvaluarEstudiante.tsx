@@ -245,7 +245,7 @@ const EvaluarEstudiante: React.FC = () => {
     }
 
     // Validar feedback (opcional, pero si está presente debe tener contenido)
-    if ((evaluacionEstudiante?.feedback ?? '').trim().length === 0) {
+    if ((feedback ?? '').trim().length === 0) {
       errores.push('El feedback no puede estar vacío');
     }
 
@@ -256,8 +256,7 @@ const EvaluarEstudiante: React.FC = () => {
   };
 
   const onEvaluacionGuardadaExitosamente = (): void => {
-    // Aquí puedes agregar tu lógica personalizada
-    console.log('Evaluación guardada exitosamente');
+    navigate(-1);
   };
 
   const handleGuardarEvaluacion = async (): Promise<void> => {

@@ -74,7 +74,7 @@ const EvaluaionesMentor = () => {
   const cargarEvaluaciones = async () => {
     try {
       setLoading(true);
-      
+
       // Construir URL con parámetros
       const params = new URLSearchParams({
         emailMentor: decoded.email,
@@ -327,7 +327,7 @@ const EvaluaionesMentor = () => {
                 <th scope="col" className="px-6 py-3 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody className="bg-[#F8F9FA] border-b dark:border-gray-700 border-gray-200">
+            <tbody className="bg-[#F8F9FA] border-b dark:border-gray-700 border-gray-200 ">
               {Evaluaciones.length > 0 ? (
                 Evaluaciones.map(evaluacion => (
                   <tr key={evaluacion.id}>
@@ -336,9 +336,8 @@ const EvaluaionesMentor = () => {
                     <td className="px-6 py-4 text-center">{evaluacion.descripcion}</td>
                     <td className="px-6 py-4 text-center">
                       <span
-                        className={`p-2 rounded-md text-white font-bold ${
-                          evaluacion.activo ? 'bg-[#28A745]' : 'bg-[#FFC107] text-[#2D2D2D]'
-                        }`}
+                        className={`p-2 rounded-md text-white font-bold ${evaluacion.activo ? 'bg-[#28A745]' : 'bg-[#FFC107] text-[#2D2D2D]'
+                          }`}
                       >
                         {evaluacion.activo ? 'Activa' : 'Inactiva'}
                       </span>
@@ -382,11 +381,10 @@ const EvaluaionesMentor = () => {
             <button
               onClick={() => handlePageChange(0)}
               disabled={paginationInfo.first}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.first
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
-              }`}
+              className={`px-3 py-1 rounded-sm ${paginationInfo.first
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                }`}
             >
               Primera
             </button>
@@ -394,11 +392,10 @@ const EvaluaionesMentor = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={paginationInfo.first}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.first
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
-              }`}
+              className={`px-3 py-1 rounded-sm ${paginationInfo.first
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                }`}
             >
               Anterior
             </button>
@@ -407,11 +404,10 @@ const EvaluaionesMentor = () => {
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`px-3 py-1 rounded-sm ${
-                  pageNum === currentPage
-                    ? 'bg-[#203bd3] text-white'
-                    : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
-                }`}
+                className={`px-3 py-1 rounded-sm ${pageNum === currentPage
+                  ? 'bg-[#203bd3] text-white'
+                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                  }`}
               >
                 {pageNum + 1}
               </button>
@@ -420,11 +416,10 @@ const EvaluaionesMentor = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={paginationInfo.last}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.last
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
-              }`}
+              className={`px-3 py-1 rounded-sm ${paginationInfo.last
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                }`}
             >
               Siguiente
             </button>
@@ -432,11 +427,10 @@ const EvaluaionesMentor = () => {
             <button
               onClick={() => handlePageChange(paginationInfo.totalPages - 1)}
               disabled={paginationInfo.last}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.last
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
-              }`}
+              className={`px-3 py-1 rounded-sm ${paginationInfo.last
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                }`}
             >
               Última
             </button>

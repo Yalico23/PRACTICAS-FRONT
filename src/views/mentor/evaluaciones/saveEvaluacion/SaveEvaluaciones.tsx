@@ -179,7 +179,6 @@ const SaveEvaluaciones = () => {
   return (
     <div className="mx-auto mt-4 p-6 bg-[#383b3f]">
       <h1 className="text-2xl font-bold mb-6 text-[#F8F9FA]">Crear Evaluación</h1>
-
       <EvaluacionForm
         evaluacion={evaluacion}
         onInputChange={handleInputChange}
@@ -220,7 +219,7 @@ const SaveEvaluaciones = () => {
 
       <div className="flex gap-4">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => navigate(-1)}
           className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
         >
           Regresar

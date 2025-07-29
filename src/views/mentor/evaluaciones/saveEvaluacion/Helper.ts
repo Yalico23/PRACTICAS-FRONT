@@ -30,7 +30,6 @@ export const crearEvaluacion = async (evaluacion: any, token: string) => {
             },
             body: JSON.stringify(evaluacion)
         });
-        console.log("Evaluación a crear:", evaluacion);
         if (!response.ok) {
             console.error("Error al crear la evaluación:", response);
             return;
@@ -51,7 +50,6 @@ export const actualizarEvaluacion = async (evaluacion: any, token: string) => {
             },
             body: JSON.stringify(evaluacion)
         });
-        console.log("Evaluación a actualizar:", evaluacion);
         if (!response.ok) {
             console.error("Error al actualizar la evaluación:", response);
             return;
