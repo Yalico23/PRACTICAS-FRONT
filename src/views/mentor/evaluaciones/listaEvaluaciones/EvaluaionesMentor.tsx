@@ -220,7 +220,8 @@ const EvaluaionesMentor = () => {
           }
 
           alertasSweet("Éxito", "Evaluación eliminada correctamente", "success");
-          await cargarEvaluaciones();
+          const newData = Evaluaciones.filter(item => item.id !== id);
+          setEvaluaciones(newData);
 
         } catch (error) {
           console.error("Error:", error);

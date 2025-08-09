@@ -27,13 +27,7 @@ const EntrevistasMentor = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const token = localStorage.getItem('token');
-
-  if (!token) {
-    console.error("Error en obtener el token");
-    return;
-  }
-
-  const decoded = jwtDecode<JwTPayload>(token);
+  const decoded = jwtDecode<JwTPayload>(token || "");
 
   useEffect(() => {
     cargarEntrevistas();

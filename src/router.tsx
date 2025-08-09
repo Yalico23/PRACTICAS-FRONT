@@ -3,7 +3,6 @@ import Evaluaciones from './views/estudiante/evaluaciones/evaluaciones/Evaluacio
 import Entrevistas from './views/estudiante/entrevistas/Entrevistas'
 import Resultados from './views/estudiante/resultados/Resultados'
 import Progreso from './views/estudiante/progreso/Progreso'
-import Entrevista from './views/estudiante/entrevistas/Entrevista'
 import MainLayoutEstudiante from './layouts/estudiante/MainLayoutEstudiante'
 import MainLayoutMentor from './layouts/mentor/MainLayoutMentor'
 import EvaluaionesMentor from './views/mentor/evaluaciones/listaEvaluaciones/EvaluaionesMentor'
@@ -22,6 +21,7 @@ import SaveEvaluaciones from './views/mentor/evaluaciones/saveEvaluacion/SaveEva
 import EvaluacionesEstudiantes from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluacionesEstudiantes'
 import EvaluarEstudiante from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluarEstudiante.tsx/EvaluarEstudiante'
 import SaveEntrevista from './views/mentor/entrevistas/entrevistas/saveEntrevista/SaveEntrevista'
+import DarEntrevista from './views/estudiante/entrevistas/entrevista/DarEntrevista'
 
 export default function Router() {
     return (
@@ -61,7 +61,7 @@ export default function Router() {
                 }>
                     <Route path='/estudiante/evaluaciones' element={<Evaluaciones />} />
                     <Route path='/estudiante/entrevistas' element={<Entrevistas />} />
-                    <Route path='/estudiante/entrevista/:entrevistaId' element={<Entrevista />} />
+                    <Route path='/estudiante/entrevista/:entrevistaId' element={<DarEntrevista />} />
                     <Route path='/estudiante/resultados' element={<Resultados />} />
                     <Route path='/estudiante/progreso' element={<Progreso />} />
                 </Route>

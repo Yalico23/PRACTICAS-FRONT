@@ -2,23 +2,53 @@ import Swal from "sweetalert2";
 import Button from "../../../../components/Button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { EvaluacionEstudiante } from "../../../../interfaces/interfaces";
+import { jwtDecode } from "jwt-decode";
+import type { JwTPayload, ListaEvaluaciones, PaginatedResponse } from "./Types";
+import Spinner from "../../../../components/Spinner";
 
 const Evaluaciones = () => {
 
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  const [evaluaciones, setEvaluaciones] = useState<EvaluacionEstudiante[]>([]);
+  const [evaluaciones, setEvaluaciones] = useState<ListaEvaluaciones[]>([]);
 
   const token = localStorage.getItem("token");
+  const decodedToken = jwtDecode<JwTPayload>(token || "");
+
+  const [paginationInfo, setPaginationInfo] = useState({
+    totalElements: 0,
+    totalPages: 0,
+    currentPage: 0,
+    pageSize: 10,
+    first: true,
+    last: true
+  });
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
+  const [filter, setFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     cargarUsuario();
-  }, [])
+  }, [currentPage, pageSize, filter])
 
   const cargarUsuario = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/evaluaciones/listarEvaluacionesEstudiante`, {
+      setLoading(true);
+
+      const params = new URLSearchParams({
+        emailEstudiante: decodedToken.email,
+        page: currentPage.toString(),
+        size: pageSize.toString()
+      })
+
+      if (filter.trim()) {
+        params.append("filter", filter.trim());
+      }
+
+      const response = await fetch(`http://localhost:8080/api/evaluaciones/listarEvaluacionesEstudiante?${params}`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
@@ -32,11 +62,63 @@ const Evaluaciones = () => {
         return;
       }
 
-      const data = await response.json();
-      setEvaluaciones(data);
+      const data: PaginatedResponse = await response.json();
+      setEvaluaciones(data.content);
+      setPaginationInfo({
+        totalElements: data.totalElements,
+        totalPages: data.totalPages,
+        currentPage: data.number,
+        pageSize: data.size,
+        first: data.first,
+        last: data.last
+      })
+      setLoading(false);
     } catch (error) {
       console.error("Error:", error);
+      setLoading(false);
     }
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFilter(searchTerm);
+    setCurrentPage(0); // Resetear a la primera página al buscar
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(0); // Resetear a la primera página al cambiar el tamaño
+  };
+
+  const clearFilter = () => {
+    setFilter("");
+    setSearchTerm("");
+    setCurrentPage(0);
+  };
+
+  // * Generar números de página para la paginación
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(paginationInfo.totalPages - 1, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  if (loading) {
+    return <Spinner />;
   }
 
   const openModal = (
@@ -78,7 +160,7 @@ const Evaluaciones = () => {
 
   return (
     <>
-      <main className="container mx-auto p-5">
+      <div className="container mx-auto p-5">
         <div>
           <h1 className="text-3xl font-['Quicksand'] font-bold text-center mt-10">
             Evaluaciones
@@ -87,93 +169,185 @@ const Evaluaciones = () => {
             Aquí podrás ver todas tus evaluaciones.
           </p>
         </div>
-
-        {/* Buscador y size */}
-        <div className="pt-5">
-          <div className="flex justify-between items-center mt-5">
-            <div className="flex items-center gap-2">
-              <label htmlFor="search" className="text-sm font-semibold">Buscar:</label>
-              <input
-                type="text"
-                id="search"
-                placeholder="Buscar evaluación..."
-                className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="size" className="text-sm font-semibold">Tamaño:</label>
-              <select
-                id="size"
-                className="py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        {/* Buscador */}
+        <div className="mt-14 flex flex-row-reverse mx-5">
+          <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Buscar evaluación..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2272FF]"
+            />
+            <button
+              type="submit"
+              className="bg-[#28A745] text-white px-4 py-2 rounded-sm hover:bg-[#218838] transition"
+            >Buscar
+            </button>
+            {filter && (
+              <button
+                type="button"
+                onClick={clearFilter}
+                className="bg-[#DC3545] text-white px-4 py-2 rounded-sm hover:bg-[#c82333] transition"
               >
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
+                Limpiar
+              </button>
+            )}
+          </form>
+        </div>
+
+        <main className="mt-5">
+          {/* Controles de paginación superior */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-300">Mostrar:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                className="px-3 py-1 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2272FF]"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
               </select>
+              <span className="text-sm text-gray-300">por página</span>
+            </div>
+            <div className="text-sm text-gray-300">
+              Mostrando {paginationInfo.currentPage * paginationInfo.pageSize + 1} a{' '}
+              {Math.min((paginationInfo.currentPage + 1) * paginationInfo.pageSize, paginationInfo.totalElements)} de{' '}
+              {paginationInfo.totalElements} evaluaciones
+              {filter && <span className="ml-2 font-medium">- Filtrado por: "{filter}"</span>}
             </div>
           </div>
-        </div>
-        {/*Tabla de evaluaciones*/}
-        <table className="min-w-full mt-10 bg-white border border-gray-300">
-          <thead>
-            <tr className="">
-              <th className="p-2">Nombre</th>
-              <th className="p-2">Mentor</th>
-              <th className="p-2">Tecnologia</th>
-              <th className="p-2">Estado</th>
-              <th className="p-2">Tiempo</th>
-              <th className="p-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {evaluaciones.map(evaluaciones => (
-              <tr key={evaluaciones.id}>
-                <td className="text-center">{evaluaciones.titulo}</td>
-                <td className="text-center">Marcus Castilla Flores</td>
-                <td className="text-center">
-                  <span className="p-0.5 px-2 bg-[#2273ff7a] rounded-full font-bold border border-[#2272FF] text-[14px] text-[#174ba5]">
-                    {evaluaciones.tecnologia}
-                  </span>
-                </td>
-                <td className="text-center">
-                  <span className={`p-0.5 px-2 rounded-full font-bold border text-[14px] ${evaluaciones.estado === "Completado"
-                    ? "bg-[#fcd34d46] border-[#d1ab30] text-[#d1ab30]"
-                    : "bg-[#189b4448] border-[#189b44] text-[#189b44]"
-                    }`}>
-                    {evaluaciones.estado}
-                  </span>
-                </td>
-                <td className="text-center">
-                  <span>{evaluaciones.tiempo}</span>
-                </td>
-                <td className="text-center flex justify-center gap-2">
-                  <Button variant="start" onClick={() =>
-                    openModal(
-                      evaluaciones.titulo,
-                      evaluaciones.tiempo,
-                      evaluaciones.descripcion,
-                      evaluaciones.tecnologia
-                    )
-                  }>
-                    <span
-                      className="text-sm font-semibold"
-                    >
-                      Ver
-                    </span>
-                  </Button>
-                  {evaluaciones.estado === "Disponible" && (
-                    <Button onClick={() => startEvaluacion(evaluaciones.id)}>
-                      <span className="text-sm font-semibold">
-                        Iniciar
-                      </span>
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </main>
+
+          <div className="relative overflow-x-auto shadow-md">
+            <table className="w-full text-sm text-left rtl:text-right text-[#1D1D1D]">
+              <thead className="text-xs text-[#1D1D1D] uppercase bg-[#E9ECEF]">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-center">Nombre</th>
+                  <th scope="col" className="px-6 py-3 text-center">Mentor</th>
+                  <th scope="col" className="px-6 py-3 text-center">Tecnologia</th>
+                  <th scope="col" className="px-6 py-3 text-center">Estado</th>
+                  <th scope="col" className="px-6 py-3 text-center">Tiempo</th>
+                  <th scope="col" className="px-6 py-3 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="bg-[#F8F9FA] border-b dark:border-gray-700 border-gray-200 ">
+                {evaluaciones.length > 0 ? (
+                  evaluaciones.map(evaluacion => (
+                    <tr key={evaluacion.id}>
+                      <td className="px-6 py-4 text-center">{evaluacion.titulo}</td>
+                      <td className="px-6 py-4 text-center">{evaluacion.mentor}</td>
+                      <td className="px-6 py-4 text-center">{evaluacion.tecnologia}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`p-2 rounded-md text-white font-bold ${evaluacion.estado === "Completado" ? 'bg-[#28A745]' : 'bg-[#FFC107] text-[#2D2D2D]'
+                          }`}>{evaluacion.estado}</span>
+                      </td>
+                      <td className="px-6 py-4 text-center">{evaluacion.tiempo}</td>
+                      <td className="text-center flex justify-center gap-2">
+                        <Button variant="start" onClick={() =>
+                          openModal(
+                            evaluacion.titulo,
+                            evaluacion.tiempo,
+                            evaluacion.descripcion,
+                            evaluacion.tecnologia
+                          )
+                        }>
+                          <span
+                            className="text-sm font-semibold"
+                          >
+                            Ver
+                          </span>
+                        </Button>
+                        {evaluacion.estado === "Disponible" && (
+                          <Button onClick={() => startEvaluacion(evaluacion.id)}>
+                            <span className="text-sm font-semibold">
+                              Iniciar
+                            </span>
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                      {filter ? `No se encontraron evaluaciones que contengan "${filter}"` : 'No hay evaluaciones disponibles'}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Controles de paginación inferior */}
+          {paginationInfo.totalPages > 1 && (
+            <div className="flex justify-center items-center mt-4 gap-2">
+              <button
+                onClick={() => handlePageChange(0)}
+                disabled={paginationInfo.first}
+                className={`px-3 py-1 rounded-sm ${paginationInfo.first
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                  }`}
+              >
+                Primera
+              </button>
+
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={paginationInfo.first}
+                className={`px-3 py-1 rounded-sm ${paginationInfo.first
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                  }`}
+              >
+                Anterior
+              </button>
+
+              {generatePageNumbers().map(pageNum => (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`px-3 py-1 rounded-sm ${pageNum === currentPage
+                    ? 'bg-[#203bd3] text-white'
+                    : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                    }`}
+                >
+                  {pageNum + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={paginationInfo.last}
+                className={`px-3 py-1 rounded-sm ${paginationInfo.last
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                  }`}
+              >
+                Siguiente
+              </button>
+
+              <button
+                onClick={() => handlePageChange(paginationInfo.totalPages - 1)}
+                disabled={paginationInfo.last}
+                className={`px-3 py-1 rounded-sm ${paginationInfo.last
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-[#2272FF] text-white hover:bg-[#203bd3]'
+                  }`}
+              >
+                Última
+              </button>
+            </div>
+          )}
+
+          {/* Información de paginación */}
+          <div className="text-center mt-2 text-sm text-gray-300">
+            Página {currentPage + 1} de {paginationInfo.totalPages}
+          </div>
+        </main>
+      </div>
     </>
   );
 };

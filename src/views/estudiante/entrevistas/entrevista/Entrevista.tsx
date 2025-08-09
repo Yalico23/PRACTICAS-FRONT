@@ -7,13 +7,6 @@ interface Pregunta {
   tiempo: number;
 }
 
-interface AwsConfig {
-  accessKeyId?: string;
-  secretAccessKey?: string;
-  region?: string;
-  bucketName?: string;
-}
-
 interface EntrevistaMetadata {
   sessionId: string;
   videoUrl?: string;
