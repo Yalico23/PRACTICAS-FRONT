@@ -6,6 +6,7 @@ import { Play, AlertTriangle, Clock, CheckCircle, SkipForward } from 'lucide-rea
 import type { UsuarioInfo } from "../../../../interfaces/interfaces";
 import { getUsuarioByemail } from "../../evaluaciones/evaluacion/Helpers";
 import { jwtDecode } from "jwt-decode";
+import { speakWithPolly } from "../../../../services/PollyClient";
 
 const DarEntrevista = () => {
     const { entrevistaId } = useParams();
@@ -26,9 +27,7 @@ const DarEntrevista = () => {
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const recordedChunksRef = useRef<Blob[]>([]);
-    const timerRef = useRef<number | null>(null);
-    const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
-
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
     useEffect(() => {
         cargarUsuario();
         cargarEntrevista();
@@ -175,16 +174,17 @@ const DarEntrevista = () => {
 
     // Leer pregunta usando síntesis de voz
     const leerPregunta = (texto: string) => {
-        // Cancelar cualquier síntesis anterior
-        window.speechSynthesis.cancel();
+        // // Cancelar cualquier síntesis anterior
+        // window.speechSynthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(texto);
-        utterance.lang = 'es-ES';
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
+        // const utterance = new SpeechSynthesisUtterance(texto);
+        // utterance.lang = 'es-ES';
+        // utterance.rate = 0.9;
+        // utterance.pitch = 1;
 
-        speechSynthesisRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
+        // speechSynthesisRef.current = utterance;
+        // window.speechSynthesis.speak(utterance);
+        speakWithPolly(texto);
     };
 
     // Iniciar timer de pregunta
