@@ -22,34 +22,62 @@ const DarEntrevista = () => {
     const [tiempoRestante, setTiempoRestante] = useState<number>(0);
     const [grabando, setGrabando] = useState<boolean>(false);
 
-    // Referencias para el video y grabación
+    // Referencias optimizadas
     const videoRef = useRef<HTMLVideoElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const recordedChunksRef = useRef<Blob[]>([]);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const destinationRef = useRef<MediaStreamAudioDestinationNode | null>(null);
+    const micGainRef = useRef<GainNode | null>(null);
+    const pollyGainRef = useRef<GainNode | null>(null);
+    const pollyAudioRef = useRef<HTMLAudioElement | null>(null);
+    const pollySourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+
     useEffect(() => {
         cargarUsuario();
         cargarEntrevista();
+
         return () => {
-            // Cleanup al desmontar componente
-            detenerGrabacion();
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-            }
-            if (timerRef.current) {
-                clearInterval(timerRef.current);
-            }
-            window.speechSynthesis.cancel();
+            limpiarRecursos();
         };
     }, []);
+
+    const limpiarRecursos = () => {
+        // Detener grabación y streams
+        if (mediaRecorderRef.current && grabando) {
+            mediaRecorderRef.current.stop();
+        }
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+        }
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+        }
+
+        // Limpiar audio de Polly
+        if (pollyAudioRef.current) {
+            pollyAudioRef.current.pause();
+            pollyAudioRef.current = null;
+        }
+        if (pollySourceRef.current) {
+            pollySourceRef.current.disconnect();
+        }
+
+        // Cerrar AudioContext
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+            audioContextRef.current.close();
+        }
+
+        window.speechSynthesis.cancel();
+    };
 
     const cargarUsuario = async () => {
         const usuarioData = await getUsuarioByemail(token ?? "", decoded.email);
         setUsuario(usuarioData);
     }
 
-    // Cargar datos de la entrevista
     const cargarEntrevista = async () => {
         setLoading(true);
         try {
@@ -65,17 +93,13 @@ const DarEntrevista = () => {
                 }
             );
 
-            if (!response.ok) {
-                console.error("Error al cargar la entrevista");
-                return;
-            }
+            if (!response.ok) throw new Error("Error al cargar la entrevista");
 
             const entrevistaData: Entrevista = await response.json();
             setEntrevista(entrevistaData);
 
-            // Configurar tiempo inicial de la primera pregunta
             if (entrevistaData.preguntas.length > 0) {
-                setTiempoRestante(entrevistaData.preguntas[0].tiempo * 60); // Convertir minutos a segundos
+                setTiempoRestante(entrevistaData.preguntas[0].tiempo * 60);
             }
         } catch (error) {
             console.error("Error al cargar la entrevista:", error);
@@ -84,18 +108,12 @@ const DarEntrevista = () => {
         }
     };
 
-    // Reemplaza la función inicializarCamara con esta versión mejorada:
     const inicializarCamara = async () => {
         try {
-            // Capturar video de la cámara
             const videoStream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
+                video: { width: { ideal: 1280 }, height: { ideal: 720 } }
             });
 
-            // Capturar audio del micrófono
             const audioStream = await navigator.mediaDevices.getUserMedia({
                 audio: {
                     echoCancellation: true,
@@ -104,90 +122,123 @@ const DarEntrevista = () => {
                 }
             });
 
-            // Combinar las pistas de video y audio
-            const combinedStream = new MediaStream([
+            // Configurar AudioContext con nodos de ganancia
+            const audioContext = new (window.AudioContext)({
+                sampleRate: 48000
+            });
+            audioContextRef.current = audioContext;
+
+            const destination = audioContext.createMediaStreamDestination();
+            const micGain = audioContext.createGain();
+            const pollyGain = audioContext.createGain();
+
+            destinationRef.current = destination;
+            micGainRef.current = micGain;
+            pollyGainRef.current = pollyGain;
+
+            // Configurar volúmenes
+            micGain.gain.value = 1.0;
+            pollyGain.gain.value = 2.5; // Volumen más alto para Polly
+
+            // Conectar micrófono
+            const micSource = audioContext.createMediaStreamSource(audioStream);
+            micSource.connect(micGain);
+            micGain.connect(destination);
+
+            // Crear stream mixto
+            const mixedStream = new MediaStream([
                 ...videoStream.getVideoTracks(),
-                ...audioStream.getAudioTracks()
+                ...destination.stream.getAudioTracks(),
             ]);
 
             if (videoRef.current) {
-                videoRef.current.srcObject = combinedStream;
+                videoRef.current.srcObject = videoStream; // Solo video para preview
             }
 
-            streamRef.current = combinedStream;
-            return combinedStream;
-
+            streamRef.current = mixedStream;
+            return mixedStream;
         } catch (error) {
-            console.error("Error al acceder a la cámara:", error);
+            console.error("Error al acceder a la cámara/micrófono:", error);
             alert("No se pudo acceder a la cámara. Verifica los permisos.");
             return null;
         }
     };
 
-    // Y modifica la función iniciarGrabacion para mejor captura de audio:
     const iniciarGrabacion = (stream: MediaStream) => {
         try {
-            // Crear un solo MediaRecorder para video y audio juntos con mejor configuración
-            const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'video/webm;codecs=vp9,opus',
-                audioBitsPerSecond: 128000, // Mejor calidad de audio
-                videoBitsPerSecond: 2500000 // Buena calidad de video
-            });
+            const options: MediaRecorderOptions = {};
 
-            // Configurar grabador
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) {
+                options.mimeType = 'video/webm;codecs=vp9,opus';
+            } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                options.mimeType = 'video/webm';
+            }
+
+            options.audioBitsPerSecond = 192000;
+            options.videoBitsPerSecond = 2500000;
+
+            const mediaRecorder = new MediaRecorder(stream, options);
+
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     recordedChunksRef.current.push(event.data);
                 }
             };
 
-            // Iniciar grabación con chunks cada segundo para mejor captura
-            mediaRecorder.start(1000);
-
+            mediaRecorder.start(500);
             mediaRecorderRef.current = mediaRecorder;
             setGrabando(true);
 
-            console.log("Grabación iniciada con audio mejorado");
+            console.log("Grabación iniciada");
         } catch (error) {
             console.error("Error al iniciar grabación:", error);
         }
     };
 
-    // Detener grabación
-    const detenerGrabacion = () => {
-        if (mediaRecorderRef.current && grabando) {
-            mediaRecorderRef.current.stop();
-            setGrabando(false);
-            console.log("Grabación detenida");
-        }
-        // Detener la cámara y el micrófono
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
-            streamRef.current = null;
-        }
+    const leerPregunta = async (texto: string) => {
+        try {
+            // Limpiar audio anterior
+            if (pollyAudioRef.current) {
+                pollyAudioRef.current.pause();
+                pollyAudioRef.current = null;
+            }
+            if (pollySourceRef.current) {
+                pollySourceRef.current.disconnect();
+                pollySourceRef.current = null;
+            }
 
-        // Limpiar el video
-        if (videoRef.current) {
-            videoRef.current.srcObject = null;
+            const audioElement = await speakWithPolly(texto);
+
+            if (audioElement && audioContextRef.current && pollyGainRef.current && destinationRef.current) {
+                pollyAudioRef.current = audioElement;
+
+                // Esperar a que el audio esté listo
+                await new Promise<void>((resolve) => {
+                    audioElement.addEventListener('loadeddata', () => resolve(), { once: true });
+                });
+
+                // Conectar Polly al sistema de audio
+                const pollySource = audioContextRef.current.createMediaElementSource(audioElement);
+                pollySourceRef.current = pollySource;
+
+                pollySource.connect(pollyGainRef.current);
+                pollyGainRef.current.connect(destinationRef.current);
+                pollyGainRef.current.connect(audioContextRef.current.destination);
+
+                audioElement.play();
+
+                // Limpiar al terminar
+                audioElement.addEventListener('ended', () => {
+                    if (pollySourceRef.current) {
+                        pollySourceRef.current.disconnect();
+                    }
+                }, { once: true });
+            }
+        } catch (error) {
+            console.error("Error al leer pregunta con Polly:", error);
         }
     };
 
-    // Leer pregunta usando síntesis de voz
-    const leerPregunta = (texto: string) => {
-        // // Cancelar cualquier síntesis anterior
-        // window.speechSynthesis.cancel();
-
-        // const utterance = new SpeechSynthesisUtterance(texto);
-        // utterance.lang = 'es-ES';
-        // utterance.rate = 0.9;
-        // utterance.pitch = 1;
-
-        // speechSynthesisRef.current = utterance;
-        // window.speechSynthesis.speak(utterance);
-        speakWithPolly(texto);
-    };
-
-    // Iniciar timer de pregunta
     const iniciarTimer = (tiempoEnMinutos: number) => {
         const tiempoEnSegundos = tiempoEnMinutos * 60;
         setTiempoRestante(tiempoEnSegundos);
@@ -199,7 +250,7 @@ const DarEntrevista = () => {
         timerRef.current = setInterval(() => {
             setTiempoRestante((prev) => {
                 if (prev <= 1) {
-                    siguientePregunta(); // Pasar automáticamente a la siguiente
+                    siguientePregunta();
                     return 0;
                 }
                 return prev - 1;
@@ -207,32 +258,26 @@ const DarEntrevista = () => {
         }, 1000);
     };
 
-    // Pasar a la siguiente pregunta
     const siguientePregunta = () => {
         if (!entrevista) return;
 
-        // Cancelar síntesis de voz actual
         window.speechSynthesis.cancel();
 
         if (preguntaActual < entrevista.preguntas.length - 1) {
-            // Hay más preguntas
             const siguienteIndice = preguntaActual + 1;
             setPreguntaActual(siguienteIndice);
 
             const siguientePreguntaObj = entrevista.preguntas[siguienteIndice];
             iniciarTimer(siguientePreguntaObj.tiempo);
 
-            // Leer la nueva pregunta después de un pequeño delay
             setTimeout(() => {
                 leerPregunta(siguientePreguntaObj.pregunta);
             }, 500);
         } else {
-            // Es la última pregunta, finalizar entrevista
             finalizarEntrevista();
         }
     };
 
-    // Iniciar entrevista
     const iniciarEntrevista = async () => {
         if (!entrevista || entrevista.preguntas.length === 0) return;
 
@@ -242,52 +287,44 @@ const DarEntrevista = () => {
         setEntrevistaIniciada(true);
         iniciarGrabacion(stream);
 
-        // Iniciar timer para la primera pregunta
         const primeraPregunta = entrevista.preguntas[0];
         iniciarTimer(primeraPregunta.tiempo);
 
-        // Leer primera pregunta después de un delay
         setTimeout(() => {
             leerPregunta(primeraPregunta.pregunta);
         }, 1000);
     };
 
-    // Finalizar entrevista
     const finalizarEntrevista = async () => {
-        // Detener timer
         if (timerRef.current) {
             clearInterval(timerRef.current);
         }
 
-        // Cancelar síntesis de voz
         window.speechSynthesis.cancel();
 
-        // Detener grabación
-        detenerGrabacion();
+        if (mediaRecorderRef.current && grabando) {
+            mediaRecorderRef.current.stop();
+            setGrabando(false);
+        }
 
-        // Detener stream
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
         }
 
-        // Procesar archivos grabados
         setTimeout(() => {
             procesarArchivosGrabados();
         }, 1000);
     };
 
-    // Procesar archivos grabados y enviar al backend
-    const procesarArchivosGrabados = async () => { // mandando en formato WebM el video
+    const procesarArchivosGrabados = async () => {
         try {
-            // Crear blob de video con audio incluido
             const videoBlob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
 
-            // Crear FormData para enviar al backend
             const formData = new FormData();
             formData.append('video', videoBlob, 'entrevista-completa.webm');
             formData.append('entrevistaId', entrevistaId || '');
             formData.append('usuarioId', usuario?.id.toString() || '');
-            // Enviar al backend
+
             const response = await fetch('http://localhost:8080/api/entrevistaEstudiante/guardarGrabacion', {
                 method: 'POST',
                 headers: {
@@ -298,7 +335,6 @@ const DarEntrevista = () => {
 
             if (response.ok) {
                 alert('Entrevista finalizada y guardada correctamente');
-                // Aquí puedes redirigir o hacer lo que necesites
             } else {
                 console.error('Error al guardar la grabación');
             }
@@ -307,24 +343,17 @@ const DarEntrevista = () => {
         }
     };
 
-    // Formatear tiempo (segundos a MM:SS)
     const formatearTiempo = (segundos: number): string => {
         const minutos = Math.floor(segundos / 60);
         const segs = segundos % 60;
         return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
     };
 
-    if (loading) {
-        return <Spinner />;
-    }
-
-    if (!entrevista) {
-        return <div className="text-center text-red-500">Error al cargar la entrevista</div>;
-    }
+    if (loading) return <Spinner />;
+    if (!entrevista) return <div className="text-center text-red-500">Error al cargar la entrevista</div>;
 
     return (
         <div className="max-w-4xl mx-auto p-6">
-            {/* Header */}
             <div className="mb-6">
                 <h1 className="text-3xl font-bold mb-2">Entrevista: {entrevista.titulo}</h1>
                 <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -347,7 +376,6 @@ const DarEntrevista = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Panel de Video */}
                 <div className="space-y-4">
                     <div className="bg-black rounded-lg overflow-hidden aspect-video">
                         <video
@@ -368,28 +396,25 @@ const DarEntrevista = () => {
                             Iniciar Entrevista
                         </button>
                     ) : (
-                        <div className="flex gap-2">
-                            <button
-                                onClick={siguientePregunta}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg flex items-center justify-center gap-2 font-semibold"
-                            >
-                                {preguntaActual < entrevista.preguntas.length - 1 ? (
-                                    <>
-                                        <SkipForward className="w-5 h-5" />
-                                        Siguiente Pregunta
-                                    </>
-                                ) : (
-                                    <>
-                                        <CheckCircle className="w-5 h-5" />
-                                        Finalizar Entrevista
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                        <button
+                            onClick={siguientePregunta}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg flex items-center justify-center gap-2 font-semibold"
+                        >
+                            {preguntaActual < entrevista.preguntas.length - 1 ? (
+                                <>
+                                    <SkipForward className="w-5 h-5" />
+                                    Siguiente Pregunta
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircle className="w-5 h-5" />
+                                    Finalizar Entrevista
+                                </>
+                            )}
+                        </button>
                     )}
                 </div>
 
-                {/* Panel de Preguntas */}
                 <div className="space-y-4">
                     <div className="bg-gray-50 rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">
@@ -410,7 +435,6 @@ const DarEntrevista = () => {
                         </div>
                     </div>
 
-                    {/* Progress bar de preguntas */}
                     <div className="bg-gray-200 rounded-full h-2">
                         <div
                             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -422,7 +446,6 @@ const DarEntrevista = () => {
                 </div>
             </div>
 
-            {/* Instrucciones */}
             {!entrevistaIniciada && (
                 <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-start gap-3">

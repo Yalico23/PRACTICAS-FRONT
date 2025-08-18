@@ -17,28 +17,29 @@ const pollyClient = new PollyClient({
     },
 });
 
-export const speakWithPolly = async (text: string) => {
+export const speakWithPolly = async (text: string): Promise<HTMLAudioElement | null> => {
     try {
         const command = new SynthesizeSpeechCommand({
             OutputFormat: "mp3",
             Text: text,
-            VoiceId: import.meta.env.VITE_AWS_VOICE_NAME, // puedes cambiar la voz: Matthew, Lupe, etc.
+            VoiceId: import.meta.env.VITE_AWS_VOICE_NAME,
         });
 
         const response = await pollyClient.send(command);
 
-        // Convertir stream a Blob reproducible 
         if (!response.AudioStream) {
             throw new Error("No se recibió AudioStream de Polly.");
         }
+        
         const audioBuffer = await response.AudioStream.transformToByteArray();
         const uint8Array = new Uint8Array(audioBuffer as unknown as ArrayBuffer);
         const audioBlob = new Blob([uint8Array], { type: "audio/mpeg" });
         const audioUrl = URL.createObjectURL(audioBlob);
 
         const audio = new Audio(audioUrl);
-        audio.play();
+        return audio;
     } catch (err) {
         console.error("Error al usar Polly:", err);
+        return null;
     }
 };
