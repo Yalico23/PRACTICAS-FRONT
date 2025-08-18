@@ -85,24 +85,39 @@ const DarEntrevista = () => {
         }
     };
 
-    // Inicializar cámara
+    // Reemplaza la función inicializarCamara con esta versión mejorada:
     const inicializarCamara = async () => {
         try {
             // Capturar video de la cámara
-            const stream = await navigator.mediaDevices.getUserMedia({
+            const videoStream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     width: { ideal: 1280 },
                     height: { ideal: 720 }
-                },
-                audio: true
+                }
             });
 
+            // Capturar audio del micrófono
+            const audioStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
+            });
+
+            // Combinar las pistas de video y audio
+            const combinedStream = new MediaStream([
+                ...videoStream.getVideoTracks(),
+                ...audioStream.getAudioTracks()
+            ]);
+
             if (videoRef.current) {
-                videoRef.current.srcObject = stream;
+                videoRef.current.srcObject = combinedStream;
             }
 
-            streamRef.current = stream;
-            return stream;
+            streamRef.current = combinedStream;
+            return combinedStream;
+
         } catch (error) {
             console.error("Error al acceder a la cámara:", error);
             alert("No se pudo acceder a la cámara. Verifica los permisos.");
@@ -110,12 +125,14 @@ const DarEntrevista = () => {
         }
     };
 
-    // Iniciar grabación
+    // Y modifica la función iniciarGrabacion para mejor captura de audio:
     const iniciarGrabacion = (stream: MediaStream) => {
         try {
-            // Crear un solo MediaRecorder para video y audio juntos
+            // Crear un solo MediaRecorder para video y audio juntos con mejor configuración
             const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'video/webm;codecs=vp9,opus'
+                mimeType: 'video/webm;codecs=vp9,opus',
+                audioBitsPerSecond: 128000, // Mejor calidad de audio
+                videoBitsPerSecond: 2500000 // Buena calidad de video
             });
 
             // Configurar grabador
@@ -125,13 +142,13 @@ const DarEntrevista = () => {
                 }
             };
 
-            // Iniciar grabación
-            mediaRecorder.start();
+            // Iniciar grabación con chunks cada segundo para mejor captura
+            mediaRecorder.start(1000);
 
             mediaRecorderRef.current = mediaRecorder;
             setGrabando(true);
 
-            console.log("Grabación iniciada");
+            console.log("Grabación iniciada con audio mejorado");
         } catch (error) {
             console.error("Error al iniciar grabación:", error);
         }
