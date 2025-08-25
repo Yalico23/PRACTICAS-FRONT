@@ -48,7 +48,7 @@ const Evaluaciones = () => {
         params.append("filter", filter.trim());
       }
 
-      const response = await fetch(`http://localhost:8080/api/evaluaciones/listarEvaluacionesEstudiante?${params}`, {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/listarEvaluacionesEstudiante?${params}`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',

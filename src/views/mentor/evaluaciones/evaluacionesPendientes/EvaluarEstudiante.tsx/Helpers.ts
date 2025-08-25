@@ -1,6 +1,6 @@
 export const cargarEvaluacion = async (token: string, idEvaluacion: number) => {
 
-    const URL = `http://localhost:8080/api/evaluaciones/listarEvaluacionById?idEvaluacion=${idEvaluacion}`;
+    const URL = `${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/listarEvaluacionById?idEvaluacion=${idEvaluacion}`;
     try {
         const response = await fetch(URL, {
             method: "GET",
@@ -22,9 +22,9 @@ export const cargarEvaluacion = async (token: string, idEvaluacion: number) => {
     }
 }
 
-export const cargarEvaluacionEstudiante = async (token: string, idEvaliacionEstudiante: number) => {
+export const cargarEvaluacionEstudiante = async (token: string, idEvaluacionEstudiante: number) => {
 
-    const URL = `http://localhost:8080/api/evaluacionEstudiante/evaluacionesEstudiante/${idEvaliacionEstudiante}`
+    const URL = `${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/evaluacionesEstudiante/${idEvaluacionEstudiante}`
     try {
         const respone = await fetch(URL, {
             method: "GET",

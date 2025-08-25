@@ -1,6 +1,6 @@
 export const cargarUsuario = async (email: string, token: string) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${email}`, {
+        const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/usuarios/usuarioByEmail?email=${email}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ export const cargarUsuario = async (email: string, token: string) => {
 
 export const listarEvaluacionesPendientes = async (idMentor:number, token:string) => {
     try {
-        const URL = `http://localhost:8080/api/evaluaciones/listPendingEvaluaciones?idMentor=${idMentor}`;
+        const URL = `${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/listPendingEvaluaciones?idMentor=${idMentor}`;
         const response = await fetch(URL,{
             method: 'GET',
             headers: {
@@ -43,7 +43,7 @@ export const listarEvaluacionesPendientes = async (idMentor:number, token:string
 export const listarEvaluacionesEstudiante = async (idEvaluacion: number, token: string) => {
 
     try {
-        const URL = `http://localhost:8080/api/evaluacionEstudiante/evaluacionesPendientes/${idEvaluacion}`;
+        const URL = `${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/evaluacionesPendientes/${idEvaluacion}`;
         const response = await fetch(URL, {
             method: 'GET',
             headers: {

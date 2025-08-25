@@ -1,7 +1,7 @@
 export const getEvalucionById = async (idEvaluacion: number, token: string) => {
     try {
         const response = await 
-        fetch(`http://localhost:8080/api/evaluaciones/listarEvaluacionById?idEvaluacion=${idEvaluacion}`, {
+        fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/listarEvaluacionById?idEvaluacion=${idEvaluacion}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ export const getEvalucionById = async (idEvaluacion: number, token: string) => {
 
 export const getUsuarioByemail = async (token: string, email: string) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${email}`, {
+        const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/usuarios/usuarioByEmail?email=${email}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ export const getUsuarioByemail = async (token: string, email: string) => {
 
 export const verificarSiRespondioEvaluacion = async (idEvaluacion: number, idUsuario: number, token: string): Promise<boolean> => {
   try {
-    const response = await fetch(`http://localhost:8080/api/evaluacionEstudiante/validarEvaluacionDoble/${idEvaluacion}/${idUsuario}`, {
+    const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/validarEvaluacionDoble/${idEvaluacion}/${idUsuario}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`

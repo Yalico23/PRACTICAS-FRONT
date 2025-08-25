@@ -31,7 +31,7 @@ export default function SideBarMentor() {
   }, [])
 
   const cargarUsuario = async () => {
-    const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${decoded.email}`, {
+    const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/usuarios/usuarioByEmail?email=${decoded.email}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
@@ -91,9 +91,6 @@ export default function SideBarMentor() {
             </Enlace>
             <Enlace enlace="/mentor/entrevistas">
               Entrevistas
-            </Enlace>
-            <Enlace enlace="/mentor/entrevistas/pendientes">
-              Entrevistas Pendientes
             </Enlace>
             <Enlace enlace="/mentor/resultados">
               Resultados

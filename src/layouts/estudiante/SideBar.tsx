@@ -32,7 +32,7 @@ export default function SideBar() {
   }, [])
 
   const cargarUsuario = async () => {
-    const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${decoded.email}`, {
+    const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/usuarios/usuarioByEmail?email=${decoded.email}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',

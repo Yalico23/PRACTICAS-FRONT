@@ -87,7 +87,7 @@ const EvaluaionesMentor = () => {
         params.append('filter', filter.trim());
       }
 
-      const response = await fetch(`http://localhost:8080/api/evaluaciones/listPageableById?${params}`, {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/listPageableById?${params}`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ const EvaluaionesMentor = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const URL: string = `http://localhost:8080/api/evaluaciones/cambiarEstado?idEvaluacion=${id}&estadoPrevio=${preEstado}`;
+          const URL: string = `${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/cambiarEstado?idEvaluacion=${id}&estadoPrevio=${preEstado}`;
           const response = await fetch(URL, {
             method: "POST",
             headers: {
@@ -186,7 +186,7 @@ const EvaluaionesMentor = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const URL: string = `http://localhost:8080/api/evaluaciones/eliminarEvaluacion?idEvaluacion=${id}`;
+          const URL: string = `${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/eliminarEvaluacion?idEvaluacion=${id}`;
           const response = await fetch(URL, {
             method: "DELETE",
             headers: {

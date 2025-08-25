@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import type { ListaEntrevistas, PaginatedResponse } from "./Types";
-import type { JwTPayload } from "../../../../interfaces/interfaces";
+import type { JwTPayload } from "../../../interfaces/interfaces";
 import { jwtDecode } from "jwt-decode";
-import Spinner from "../../../../components/Spinner";
+import Spinner from "../../../components/Spinner";
 import Swal from "sweetalert2";
 
 const EntrevistasMentor = () => {
@@ -164,7 +164,7 @@ const EntrevistasMentor = () => {
         confirmButtonText: 'Sí, eliminar'
       }
     ).then((result) => {
-      if (result.isConfirmed) {
+      if(result.isConfirmed){
         fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistas/eliminar/${id}`, {
           method: "DELETE",
           headers: {
@@ -200,10 +200,6 @@ const EntrevistasMentor = () => {
     }
     return pages;
   };
-
-  const revisarEntrevista = (id: number, titulo: string) => {
-    navigate(`/mentor/entrevista/revisar/${id}/${titulo}`);
-  }
 
   if (loading) {
     return <Spinner />;
@@ -280,8 +276,8 @@ const EntrevistasMentor = () => {
                 <th scope="col" className="px-6 py-3 text-center">Id</th>
                 <th scope="col" className="px-6 py-3 text-center">Nombre</th>
                 <th scope="col" className="px-6 py-3 text-center">Descripción</th>
-                <th scope="col" className="px-6 py-3 text-center">Estado</th>
                 <th scope="col" className="px-6 py-3 text-center">Fecha Creación</th>
+                <th scope="col" className="px-6 py-3 text-center">Estado</th>
                 <th scope="col" className="px-6 py-3 text-center">Acciones</th>
               </tr>
             </thead>
@@ -325,12 +321,6 @@ const EntrevistasMentor = () => {
                         onClick={() => cambiaEstadoEntrevista(entrevista.id, entrevista.activo)}
                       >
                         {entrevista.activo ? 'Deshabilitar' : 'Habilitar'}
-                      </button>
-                      <button
-                        className="bg-green-500 text-white font-bold rounded-sm p-2 hover:bg-green-700 transition"
-                        onClick={() => revisarEntrevista(entrevista.id, entrevista.titulo)}
-                      >
-                        Revisar
                       </button>
                     </td>
                   </tr>

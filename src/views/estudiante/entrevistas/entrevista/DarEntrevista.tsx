@@ -82,7 +82,7 @@ const DarEntrevista = () => {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8080/api/entrevistas/listEntrevistasById?idEntrevista=${entrevistaId}`,
+                `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistas/listEntrevistasById?idEntrevista=${entrevistaId}`,
                 {
                     method: "GET",
                     headers: {
@@ -325,7 +325,7 @@ const DarEntrevista = () => {
             formData.append('entrevistaId', entrevistaId || '');
             formData.append('usuarioId', usuario?.id.toString() || '');
 
-            const response = await fetch('http://localhost:8080/api/entrevistaEstudiante/guardarGrabacion', {
+            const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/guardarGrabacion`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

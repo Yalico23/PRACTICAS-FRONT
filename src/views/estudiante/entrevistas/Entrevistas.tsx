@@ -48,7 +48,7 @@ const Entrevistas = () => {
         params.append("filter", filter.trim());
       }
 
-      const response = await fetch(`http://localhost:8080/api/entrevistas/listarEntrevistaEstudiante?${params}`, {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistas/listarEntrevistaEstudiante?${params}`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',

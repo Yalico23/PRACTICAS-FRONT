@@ -21,7 +21,7 @@ const RecuperarPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/usuarios/restablecer-password-email?correoDestino=${encodeURIComponent(email)}`, {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/usuarios/restablecer-password-email?correoDestino=${encodeURIComponent(email)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

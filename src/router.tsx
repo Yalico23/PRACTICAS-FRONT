@@ -22,6 +22,7 @@ import EvaluacionesEstudiantes from './views/mentor/evaluaciones/evaluacionesPen
 import EvaluarEstudiante from './views/mentor/evaluaciones/evaluacionesPendientes/EvaluarEstudiante.tsx/EvaluarEstudiante'
 import SaveEntrevista from './views/mentor/entrevistas/entrevistas/saveEntrevista/SaveEntrevista'
 import DarEntrevista from './views/estudiante/entrevistas/entrevista/DarEntrevista'
+import EntrevistaPendiente from './views/mentor/entrevistas/entrevistasPendientes/EntrevistaPendiente'
 
 export default function Router() {
     return (
@@ -93,7 +94,8 @@ export default function Router() {
                     <Route path='/mentor/entrevistas' element={<EntrevistasMentor />} />
                     <Route path='/mentor/entrevista/crear' element={<SaveEntrevista/>}/>
                     <Route path='/mentor/entrevista/editar/:entrevistaId' element={<SaveEntrevista/>}/>
-                    <Route path='/mentor/entrevistas/pendientes' element={<EntrevistasMentorPendientes />} />
+                    <Route path='/mentor/entrevista/revisar/:idEntrevista/:titulo' element={<EntrevistasMentorPendientes />} />
+                    <Route path='/mentor/entrevista/calificar/:idEntrevista' element={<EntrevistaPendiente />} />
                     <Route path='/mentor/resultados' element={<ResultadosMentor />} />
                 </Route>
 

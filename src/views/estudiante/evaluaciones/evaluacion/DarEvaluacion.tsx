@@ -314,7 +314,7 @@ const DarEvaluacion = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8080/api/evaluacionEstudiante/mandarEvaluacion", {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/mandarEvaluacion`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

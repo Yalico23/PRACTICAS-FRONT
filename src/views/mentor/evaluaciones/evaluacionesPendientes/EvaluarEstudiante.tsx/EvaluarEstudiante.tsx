@@ -158,7 +158,7 @@ const EvaluarEstudiante: React.FC = () => {
         respuestasTexto
       };
 
-      const response = await fetch('http://localhost:8080/api/ia/analizar-respuestas-texto', {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/ia/analizar-respuestas-texto`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -291,7 +291,7 @@ const EvaluarEstudiante: React.FC = () => {
       console.log('Payload a enviar:', payload);
 
       // Realizar la petición
-      const response = await fetch('http://localhost:8080/api/evaluacionEstudiante/calificarEvaluacion', {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/calificarEvaluacion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

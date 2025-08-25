@@ -60,7 +60,7 @@ const RestablecerPassword: React.FC = () => {
     setMensaje('');
 
     try {
-      const url = `http://localhost:8080/api/usuarios/restablecer-password?token=${codigo}&nuevoPassword=${nuevaPassword}`;
+      const url = `${import.meta.env.VITE_HOST_BACKEND}/api/usuarios/restablecer-password?token=${codigo}&nuevoPassword=${nuevaPassword}`;
       
       const response = await fetch(url, {
         method: 'POST',

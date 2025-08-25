@@ -1,6 +1,6 @@
 export const cargarUsuario = async (email: string, token: string) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/usuarios/usuarioByEmail?email=${email}`, {
+        const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/usuarios/usuarioByEmail?email=${email}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ export const cargarUsuario = async (email: string, token: string) => {
 
 export const crearEvaluacion = async (evaluacion: any, token: string) => {
     try {
-        const response = await fetch('http://localhost:8080/api/evaluaciones/crear', {
+        const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/crear`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ export const crearEvaluacion = async (evaluacion: any, token: string) => {
 
 export const actualizarEvaluacion = async (evaluacion: any, token: string) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/evaluaciones/actualizar`, {
+        const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/actualizar`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export const actualizarEvaluacion = async (evaluacion: any, token: string) => {
 
 export const cargarEvaluacion = async (idEvaluacion: number, token: string) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/evaluaciones/listarEvaluacionById?idEvaluacion=${idEvaluacion}`, {
+        const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluaciones/listarEvaluacionById?idEvaluacion=${idEvaluacion}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
