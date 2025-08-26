@@ -158,7 +158,7 @@ const EvaluarEstudiante: React.FC = () => {
         respuestasTexto
       };
 
-      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/ia/analizar-respuestas-texto`, {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/analizar-respuestas-texto`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

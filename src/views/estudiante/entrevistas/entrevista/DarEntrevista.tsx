@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import type { JwTPayload, Entrevista } from "../Types"
 import Spinner from "../../../../components/Spinner";
 import { Play, AlertTriangle, Clock, CheckCircle, SkipForward } from 'lucide-react';
@@ -7,8 +7,10 @@ import type { UsuarioInfo } from "../../../../interfaces/interfaces";
 import { getUsuarioByemail } from "../../evaluaciones/evaluacion/Helpers";
 import { jwtDecode } from "jwt-decode";
 import { speakWithPolly } from "../../../../services/PollyClient";
+import Swal from "sweetalert2";
 
 const DarEntrevista = () => {
+    const navigate = useNavigate();
     const { entrevistaId } = useParams();
     const token = localStorage.getItem("token");
     const decoded = jwtDecode<JwTPayload>(token || '');
@@ -21,6 +23,8 @@ const DarEntrevista = () => {
     const [entrevistaIniciada, setEntrevistaIniciada] = useState<boolean>(false);
     const [tiempoRestante, setTiempoRestante] = useState<number>(0);
     const [grabando, setGrabando] = useState<boolean>(false);
+    const [procesandoVideo, setProcesandoVideo] = useState<boolean>(false);
+
 
     // Referencias optimizadas
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -311,6 +315,8 @@ const DarEntrevista = () => {
             streamRef.current.getTracks().forEach(track => track.stop());
         }
 
+        setProcesandoVideo(true);
+
         setTimeout(() => {
             procesarArchivosGrabados();
         }, 1000);
@@ -334,14 +340,33 @@ const DarEntrevista = () => {
             });
 
             if (response.ok) {
-                alert('Entrevista finalizada y guardada correctamente');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: 'Entrevista finalizada y guardada correctamente',
+                });
+                navigate('/estudiante/entrevistas');
             } else {
                 console.error('Error al guardar la grabación');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo guardar la entrevista. Intenta nuevamente.',
+                });
             }
         } catch (error) {
             console.error('Error al procesar archivos:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ocurrió un problema al procesar el video.',
+            });
+        } finally {
+            // Ocultar spinner al terminar
+            setProcesandoVideo(false);
         }
     };
+
 
     const formatearTiempo = (segundos: number): string => {
         const minutos = Math.floor(segundos / 60);
@@ -463,6 +488,16 @@ const DarEntrevista = () => {
                     </div>
                 </div>
             )}
+
+            {procesandoVideo && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center gap-4">
+                        <Spinner />
+                        <p className="text-gray-700 font-semibold">Procesando y guardando tu entrevista, por favor espera...</p>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
