@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface datoEntrevista {
     id: number;
@@ -14,11 +14,11 @@ interface EvaluacionData {
 }
 
 interface EvaluacionIA {
-    notaSugerida?: number;
     analisis?: string;
-    fortalezas?: string;
-    debilidades?: string;
-    recomendaciones?: string;
+    notaSugerida?: number;
+    fortalezas?: string[];
+    debilidades?: string[];
+    recomendaciones?: string[];
 }
 
 // Componente para carga lazy del video
@@ -31,19 +31,19 @@ const VideoLazy = ({ videoUrl }: { videoUrl: string }) => {
 
     if (!shouldLoadVideo) {
         return (
-            <div 
+            <div
                 className="relative bg-gray-900 rounded-lg shadow-md flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors"
                 style={{ height: '400px', maxHeight: '400px' }}
                 onClick={handleLoadVideo}
             >
                 <div className="text-center text-white">
                     <div className="mb-4">
-                        <svg 
-                            className="w-16 h-16 mx-auto text-white opacity-80" 
-                            fill="currentColor" 
+                        <svg
+                            className="w-16 h-16 mx-auto text-white opacity-80"
+                            fill="currentColor"
                             viewBox="0 0 20 20"
                         >
-                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                         </svg>
                     </div>
                     <p className="text-lg font-medium">Reproducir Video</p>
@@ -70,8 +70,9 @@ const VideoLazy = ({ videoUrl }: { videoUrl: string }) => {
 };
 
 const EntrevistaPendiente = () => {
+    const navigate = useNavigate();
     const { idEntrevista } = useParams();
-    
+
     const [entrevista, setEntrevista] = useState<datoEntrevista>();
     const [evaluacion, setEvaluacion] = useState<EvaluacionData>({
         feedback: '',
@@ -90,7 +91,7 @@ const EntrevistaPendiente = () => {
     const cargarEntrevista = async () => {
         try {
             const response = await fetch(
-                `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/buscarEntrevistaEstudiante?idEntrevistaEstudiante=${idEntrevista}`, 
+                `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/buscarEntrevistaEstudiante?idEntrevistaEstudiante=${idEntrevista}`,
                 {
                     method: 'GET',
                     headers: {
@@ -99,11 +100,11 @@ const EntrevistaPendiente = () => {
                     }
                 }
             );
-            
+
             if (!response.ok) {
                 throw new Error('Error al cargar la entrevista');
             }
-            
+
             const data: datoEntrevista = await response.json();
             setEntrevista(data);
         } catch (error) {
@@ -121,19 +122,19 @@ const EntrevistaPendiente = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            
+
             if (!response.ok) {
                 throw new Error('Error al generar resumen crítico');
             }
-            
+
             const data: EvaluacionIA = await response.json();
             setEvaluacionIA(data);
-            
+
             // Si hay una nota sugerida, ofrecerla al evaluador
             if (data.notaSugerida) {
                 setEvaluacion(prev => ({ ...prev, nota: data.notaSugerida! }));
             }
-            
+
         } catch (error) {
             console.error("Error al generar resumen crítico:", error);
         } finally {
@@ -143,13 +144,13 @@ const EntrevistaPendiente = () => {
 
     const handleNotaChange = (value: string) => {
         const nota = parseInt(value);
-        
+
         // Validaciones
         if (isNaN(nota) || nota < 1 || nota > 20) {
             setErrors({ nota: "La nota debe ser un número entero entre 1 y 20" });
             return;
         }
-        
+
         setErrors({});
         setEvaluacion(prev => ({ ...prev, nota }));
     };
@@ -164,16 +165,26 @@ const EntrevistaPendiente = () => {
             return;
         }
 
+        const params = new URLSearchParams({
+            idEntrevistaEstudiante: idEntrevista?.toString() || '',
+            feedback: evaluacion.feedback,
+            valoracion: evaluacion.nota.toString()
+        });
+
         try {
-            // Implementar lógica de guardado
-            const datosEvaluacion = {
-                ...evaluacion,
-                evaluacionIA: evaluacionIA
-            };
-            console.log("Guardando evaluación:", datosEvaluacion);
-            // Aquí iría tu llamada a la API para guardar la evaluación completa
+            const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/evaluarEntrevista?${params}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if (!response.ok) {
+                throw new Error('Error al guardar la evaluación');
+            }
+            navigate(-1);
         } catch (error) {
-            console.error("Error al guardar evaluación:", error);
+            console.error("Error al guardar la evaluación:", error);
         }
     };
 
@@ -190,7 +201,7 @@ const EntrevistaPendiente = () => {
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
                 Evaluación de Entrevista Técnica
             </h1>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Columna izquierda - Video y resumen */}
                 <div className="space-y-6">
@@ -229,16 +240,15 @@ const EntrevistaPendiente = () => {
                             <button
                                 onClick={generarResumenCritico}
                                 disabled={generandoResumen}
-                                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                                    generandoResumen
-                                        ? 'bg-gray-400 cursor-not-allowed text-white'
-                                        : 'bg-purple-600 hover:bg-purple-700 text-white'
-                                }`}
+                                className={`px-4 py-2 rounded-md font-medium transition-colors ${generandoResumen
+                                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                                    : 'bg-purple-600 hover:bg-purple-700 text-white'
+                                    }`}
                             >
                                 {generandoResumen ? 'Analizando...' : 'Generar Análisis con IA'}
                             </button>
                         </div>
-                        
+
                         {/* Nota Sugerida */}
                         {evaluacionIA.notaSugerida && (
                             <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 rounded-md">
@@ -252,7 +262,7 @@ const EntrevistaPendiente = () => {
                                 </div>
                             </div>
                         )}
-                        
+
                         {/* Análisis General */}
                         {evaluacionIA.analisis && (
                             <div className="mb-4">
@@ -262,14 +272,16 @@ const EntrevistaPendiente = () => {
                                 </div>
                             </div>
                         )}
-                        
+
                         {/* Fortalezas */}
-                        {evaluacionIA.fortalezas && evaluacionIA.fortalezas.trim() ? (
+                        {evaluacionIA.fortalezas && evaluacionIA.fortalezas.length > 0 ? (
                             <div className="mb-4">
                                 <h3 className="font-medium text-green-700 mb-2">✅ Fortalezas:</h3>
-                                <div className="bg-green-50 p-3 rounded border border-green-200 text-sm text-gray-700">
-                                    {evaluacionIA.fortalezas}
-                                </div>
+                                <ul className="bg-green-50 p-3 rounded border border-green-200 text-sm text-gray-700 list-disc pl-5 space-y-1">
+                                    {evaluacionIA.fortalezas.map((fortaleza, idx) => (
+                                        <li key={idx}>{fortaleza}</li>
+                                    ))}
+                                </ul>
                             </div>
                         ) : evaluacionIA.analisis && (
                             <div className="mb-4">
@@ -279,14 +291,16 @@ const EntrevistaPendiente = () => {
                                 </div>
                             </div>
                         )}
-                        
+
                         {/* Debilidades */}
-                        {evaluacionIA.debilidades && evaluacionIA.debilidades.trim() ? (
+                        {evaluacionIA.debilidades && evaluacionIA.debilidades.length > 0 ? (
                             <div className="mb-4">
                                 <h3 className="font-medium text-red-700 mb-2">⚠️ Áreas de Mejora:</h3>
-                                <div className="bg-red-50 p-3 rounded border border-red-200 text-sm text-gray-700">
-                                    {evaluacionIA.debilidades}
-                                </div>
+                                <ul className="bg-red-50 p-3 rounded border border-red-200 text-sm text-gray-700 list-disc pl-5 space-y-1">
+                                    {evaluacionIA.debilidades.map((debilidad, idx) => (
+                                        <li key={idx}>{debilidad}</li>
+                                    ))}
+                                </ul>
                             </div>
                         ) : evaluacionIA.analisis && (
                             <div className="mb-4">
@@ -296,14 +310,16 @@ const EntrevistaPendiente = () => {
                                 </div>
                             </div>
                         )}
-                        
+
                         {/* Recomendaciones */}
-                        {evaluacionIA.recomendaciones && evaluacionIA.recomendaciones.trim() ? (
+                        {evaluacionIA.recomendaciones && evaluacionIA.recomendaciones.length > 0 ? (
                             <div className="mb-4">
                                 <h3 className="font-medium text-blue-700 mb-2">💡 Recomendaciones:</h3>
-                                <div className="bg-blue-50 p-3 rounded border border-blue-200 text-sm text-gray-700">
-                                    {evaluacionIA.recomendaciones}
-                                </div>
+                                <ul className="bg-blue-50 p-3 rounded border border-blue-200 text-sm text-gray-700 list-disc pl-5 space-y-1">
+                                    {evaluacionIA.recomendaciones.map((recomendacion, idx) => (
+                                        <li key={idx}>{recomendacion}</li>
+                                    ))}
+                                </ul>
                             </div>
                         ) : evaluacionIA.analisis && (
                             <div className="mb-4">
@@ -313,14 +329,10 @@ const EntrevistaPendiente = () => {
                                 </div>
                             </div>
                         )}
-                        
-                        {!evaluacionIA.analisis && !generandoResumen && (
-                            <div className="text-center text-gray-500 py-8">
-                                Haz clic en el botón para generar un análisis automático de la entrevista
-                            </div>
-                        )}
+
                     </div>
 
+                    {/* Feedback */}
                     {/* Feedback */}
                     <div className="bg-green-50 p-4 rounded-lg">
                         <h2 className="text-xl font-semibold text-gray-700 mb-3">
@@ -328,11 +340,20 @@ const EntrevistaPendiente = () => {
                         </h2>
                         <textarea
                             value={evaluacion.feedback}
-                            onChange={(e) => handleFeedbackChange(e.target.value)}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 255) {
+                                    handleFeedbackChange(e.target.value);
+                                }
+                            }}
+                            maxLength={255} // importante para bloquear la escritura extra
                             placeholder="Escribe tu feedback detallado sobre el desempeño del estudiante..."
                             className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
+                        <div className="text-right text-sm text-gray-500 mt-1">
+                            {evaluacion.feedback.length}/255
+                        </div>
                     </div>
+
 
                     {/* Nota */}
                     <div className="bg-orange-50 p-4 rounded-lg">
@@ -351,11 +372,10 @@ const EntrevistaPendiente = () => {
                                 step="1"
                                 value={evaluacion.nota}
                                 onChange={(e) => handleNotaChange(e.target.value)}
-                                className={`w-20 p-2 border rounded-md text-center font-bold text-lg ${
-                                    errors.nota 
-                                        ? 'border-red-500 focus:ring-red-500' 
-                                        : 'border-gray-300 focus:ring-orange-500'
-                                } focus:ring-2 focus:border-transparent`}
+                                className={`w-20 p-2 border rounded-md text-center font-bold text-lg ${errors.nota
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : 'border-gray-300 focus:ring-orange-500'
+                                    } focus:ring-2 focus:border-transparent`}
                             />
                             <span className="text-gray-600">/ 20</span>
                         </div>

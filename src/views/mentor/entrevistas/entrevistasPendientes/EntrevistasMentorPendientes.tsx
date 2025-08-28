@@ -1,7 +1,5 @@
-import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import type { JwTPayload } from "../../../estudiante/entrevistas/Types";
 import type { PaginatedResponse, ListaEntrevistas } from "./Types";
 import Spinner from "../../../../components/Spinner";
 
@@ -25,9 +23,6 @@ const EntrevistasMentorPendientes = () => {
   const [pageSize, setPageSize] = useState(5);
   const [filter, setFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
-  const token = localStorage.getItem("token");
-  const decoded = jwtDecode<JwTPayload>(token || "");
 
   useEffect(() => {
     listarEntrevistasPendientes();
