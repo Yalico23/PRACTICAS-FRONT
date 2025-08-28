@@ -193,6 +193,9 @@ const EntrevistasMentorPendientes = () => {
                   Estado
                 </th>
                 <th scope="col" className="px-6 py-3 text-center">
+                  Nota Entrevista
+                </th>
+                <th scope="col" className="px-6 py-3 text-center">
                   Acciones
                 </th>
               </tr>
@@ -218,17 +221,18 @@ const EntrevistasMentorPendientes = () => {
                         </span>
                       )}
                     </td>
+                    <td className="px-6 py-4 text-center">
+                      {entrevista.notaFinal}
+                    </td>
                     <td className="px-6 py-4 flex gap-3 justify-center items-center">
-                      {entrevista.notaFinal === 0 && (
-                        <button
+                      <button
                           className="bg-green-500 text-white font-bold rounded-sm p-2 hover:bg-green-700 transition"
                           onClick={() =>
                             handleRevisarEntrevista(entrevista.idEntrevistaEstudiante)
                           }
                         >
-                          Revisar
+                          {entrevista.notaFinal === 0 ? "Revisar" : "Editar nota"}
                         </button>
-                      )}
                     </td>
                   </tr>
                 ))

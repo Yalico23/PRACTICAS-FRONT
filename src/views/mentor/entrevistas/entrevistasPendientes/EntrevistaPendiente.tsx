@@ -6,6 +6,8 @@ interface datoEntrevista {
     fechaEntrevista: string;
     videoResumen: string;
     urlvideo: string;
+    feedBack: string;
+    valoracion: string;
 }
 
 interface EvaluacionData {
@@ -107,6 +109,11 @@ const EntrevistaPendiente = () => {
 
             const data: datoEntrevista = await response.json();
             setEntrevista(data);
+            // Inicializar feedback y nota si ya existen en la BD
+            setEvaluacion({
+                feedback: data.feedBack || '',
+                nota: data.valoracion ? parseInt(data.valoracion) : 1
+            });
         } catch (error) {
             console.error("Error al cargar la entrevista:", error);
         }
@@ -333,7 +340,6 @@ const EntrevistaPendiente = () => {
                     </div>
 
                     {/* Feedback */}
-                    {/* Feedback */}
                     <div className="bg-green-50 p-4 rounded-lg">
                         <h2 className="text-xl font-semibold text-gray-700 mb-3">
                             Feedback de Evaluación
@@ -391,6 +397,13 @@ const EntrevistaPendiente = () => {
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md"
                         >
                             Guardar Evaluación
+                        </button>
+                        
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md mt-3"
+                        >
+                            Regresar
                         </button>
                     </div>
                 </div>
