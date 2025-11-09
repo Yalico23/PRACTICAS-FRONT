@@ -367,7 +367,7 @@ const EvaluaionesMentor = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                     {filter ? `No se encontraron evaluaciones que contengan "${filter}"` : 'No hay evaluaciones disponibles'}
                   </td>
                 </tr>

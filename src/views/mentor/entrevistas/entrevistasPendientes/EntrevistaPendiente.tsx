@@ -106,6 +106,17 @@ const EntrevistaPendiente = () => {
             }
 
             const data: datoEntrevista = await response.json();
+            // Parsear el videoResumen si viene como string JSON
+            if (data.videoResumen) {
+                try {
+                    const resumenObj = JSON.parse(data.videoResumen);
+                    data.videoResumen = resumenObj.text || data.videoResumen;
+                } catch (e) {
+                    // Si no es JSON válido, mantener el valor original
+                    console.log("videoResumen no es JSON, usando valor directo");
+                }
+            }
+
             setEntrevista(data);
         } catch (error) {
             console.error("Error al cargar la entrevista:", error);
@@ -113,15 +124,21 @@ const EntrevistaPendiente = () => {
     };
 
     const generarResumenCritico = async () => {
+        if (!entrevista?.videoResumen) return;
+
         setGenerandoResumen(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/generarResumenEntrevistaIA?texto=${entrevista?.videoResumen}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+            const response = await fetch(
+                `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/generarResumenEntrevistaIA`,
+                {
+                    method: 'POST', // <-- cambio a POST
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ texto: entrevista.videoResumen }) // <-- enviamos JSON
                 }
-            });
+            );
 
             if (!response.ok) {
                 throw new Error('Error al generar resumen crítico');
@@ -141,6 +158,7 @@ const EntrevistaPendiente = () => {
             setGenerandoResumen(false);
         }
     };
+
 
     const handleNotaChange = (value: string) => {
         const nota = parseInt(value);
@@ -391,6 +409,14 @@ const EntrevistaPendiente = () => {
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md"
                         >
                             Guardar Evaluación
+                        </button>
+                    </div>
+                    <div className="pt-4">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition-colors shadow-md"
+                        >
+                            Volver
                         </button>
                     </div>
                 </div>

@@ -163,25 +163,35 @@ const EntrevistasMentor = () => {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, eliminar'
       }
-    ).then((result) => {
+    ).then(async (result) => {
       if (result.isConfirmed) {
-        fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistas/eliminar/${id}`, {
-          method: "DELETE",
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json; charset=UTF-8',
-            'Authorization': `Bearer ${token}`
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistas/eliminar/${id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json; charset=UTF-8",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
           }
-        })
-        Swal.fire(
-          '¡Eliminada!',
-          'La entrevista ha sido eliminada.',
-          'success'
-        )
-        const updatedEntrevistas = entrevistas.filter(entrevista => entrevista.id !== id);
-        setEntrevistas(updatedEntrevistas);
+
+          Swal.fire("Eliminada", "La entrevista fue eliminada correctamente.", "success");
+          const updatedEntrevistas = entrevistas.filter(entrevista => entrevista.id !== id);
+          setEntrevistas(updatedEntrevistas);
+
+        } catch (error) {
+          console.error("Error al eliminar la entrevista:", error);
+          Swal.fire("Error", "No se pudo eliminar la entrevista, existe entrevistas asociadas.", "error");
+        }
       }
-    })
+    });
   }
 
   // * Generar números de página para la paginación
@@ -337,8 +347,8 @@ const EntrevistasMentor = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                    {filter ? `No se encontraron evaluaciones que contengan "${filter}"` : 'No hay evaluaciones disponibles'}
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                    {filter ? `No se encontraron entrevistas que contengan "${filter}"` : 'No hay entrevistas disponibles'}
                   </td>
                 </tr>
               )}

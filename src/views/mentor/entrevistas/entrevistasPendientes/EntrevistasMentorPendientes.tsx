@@ -219,7 +219,7 @@ const EntrevistasMentorPendientes = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 flex gap-3 justify-center items-center">
-                      {entrevista.notaFinal === 0 && (
+                      {entrevista.notaFinal === 0 ? (
                         <button
                           className="bg-green-500 text-white font-bold rounded-sm p-2 hover:bg-green-700 transition"
                           onClick={() =>
@@ -227,6 +227,15 @@ const EntrevistasMentorPendientes = () => {
                           }
                         >
                           Revisar
+                        </button>
+                      ) : (
+                        <button
+                          className="bg-green-500 text-white font-bold rounded-sm p-2 hover:bg-green-700 transition"
+                          onClick={() =>
+                            handleRevisarEntrevista(entrevista.idEntrevistaEstudiante)
+                          }
+                        >
+                          Editar
                         </button>
                       )}
                     </td>
@@ -254,11 +263,10 @@ const EntrevistasMentorPendientes = () => {
             <button
               onClick={() => handlePageChange(0)}
               disabled={paginationInfo.first}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.first
+              className={`px-3 py-1 rounded-sm ${paginationInfo.first
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-[#2272FF] text-white hover:bg-[#203bd3]"
-              }`}
+                }`}
             >
               Primera
             </button>
@@ -266,11 +274,10 @@ const EntrevistasMentorPendientes = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={paginationInfo.first}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.first
+              className={`px-3 py-1 rounded-sm ${paginationInfo.first
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-[#2272FF] text-white hover:bg-[#203bd3]"
-              }`}
+                }`}
             >
               Anterior
             </button>
@@ -279,11 +286,10 @@ const EntrevistasMentorPendientes = () => {
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`px-3 py-1 rounded-sm ${
-                  pageNum === currentPage
+                className={`px-3 py-1 rounded-sm ${pageNum === currentPage
                     ? "bg-[#203bd3] text-white"
                     : "bg-[#2272FF] text-white hover:bg-[#203bd3]"
-                }`}
+                  }`}
               >
                 {pageNum + 1}
               </button>
@@ -292,11 +298,10 @@ const EntrevistasMentorPendientes = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={paginationInfo.last}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.last
+              className={`px-3 py-1 rounded-sm ${paginationInfo.last
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-[#2272FF] text-white hover:bg-[#203bd3]"
-              }`}
+                }`}
             >
               Siguiente
             </button>
@@ -304,11 +309,10 @@ const EntrevistasMentorPendientes = () => {
             <button
               onClick={() => handlePageChange(paginationInfo.totalPages - 1)}
               disabled={paginationInfo.last}
-              className={`px-3 py-1 rounded-sm ${
-                paginationInfo.last
+              className={`px-3 py-1 rounded-sm ${paginationInfo.last
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-[#2272FF] text-white hover:bg-[#203bd3]"
-              }`}
+                }`}
             >
               Última
             </button>
