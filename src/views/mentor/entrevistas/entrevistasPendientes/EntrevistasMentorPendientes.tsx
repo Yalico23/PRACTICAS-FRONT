@@ -193,6 +193,9 @@ const EntrevistasMentorPendientes = () => {
                   Estado
                 </th>
                 <th scope="col" className="px-6 py-3 text-center">
+                  Nota Final
+                </th>
+                <th scope="col" className="px-6 py-3 text-center">
                   Acciones
                 </th>
               </tr>
@@ -217,6 +220,9 @@ const EntrevistasMentorPendientes = () => {
                           Revisado
                         </span>
                       )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {entrevista.notaFinal}
                     </td>
                     <td className="px-6 py-4 flex gap-3 justify-center items-center">
                       {entrevista.notaFinal === 0 ? (
@@ -244,7 +250,7 @@ const EntrevistasMentorPendientes = () => {
               ) : (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     {filter

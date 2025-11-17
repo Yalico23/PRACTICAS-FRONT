@@ -24,6 +24,9 @@ import DarEntrevista from './views/estudiante/entrevistas/entrevista/DarEntrevis
 import EntrevistaPendiente from './views/mentor/entrevistas/entrevistasPendientes/EntrevistaPendiente'
 import ResultadoEvaluacion from './views/estudiante/evaluaciones/resultado/ResultadoEvaluacion'
 import ResultadoEntrevista from './views/estudiante/entrevistas/resultados/ResultadoEntrevista'
+import MainLayoutAdmin from './layouts/admin/MainLayoutAdmin'
+import { CrearUsuario } from './views/admin/CrearUsuario'
+import ListarUsuarios from './views/admin/ListarUsuarios'
 
 export default function Router() {
     return (
@@ -101,7 +104,15 @@ export default function Router() {
                     <Route path='/mentor/resultados' element={<ResultadosMentor />} />
                 </Route>
 
-
+                {/* Rutas protegidas para ADMIN */}
+                <Route element={
+                    <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+                        <MainLayoutAdmin />
+                    </ProtectedRoute>
+                }>
+                    <Route path='/admin/inicio' element={<CrearUsuario />} />
+                    <Route path='/admin/usuarios' element={<ListarUsuarios />} />
+                </Route>
 
                 {/* Ruta catch-all para 404 */}
                 <Route path='*' element={<Navigate to="/" replace />} />

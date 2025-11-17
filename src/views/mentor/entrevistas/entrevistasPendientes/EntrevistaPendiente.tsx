@@ -6,6 +6,9 @@ interface datoEntrevista {
     fechaEntrevista: string;
     videoResumen: string;
     urlvideo: string;
+    valoracion: number;
+    feedBack: string;
+    completado: boolean;
 }
 
 interface EvaluacionData {
@@ -72,7 +75,6 @@ const VideoLazy = ({ videoUrl }: { videoUrl: string }) => {
 const EntrevistaPendiente = () => {
     const navigate = useNavigate();
     const { idEntrevista } = useParams();
-
     const [entrevista, setEntrevista] = useState<datoEntrevista>();
     const [evaluacion, setEvaluacion] = useState<EvaluacionData>({
         feedback: '',
@@ -81,6 +83,8 @@ const EntrevistaPendiente = () => {
     const [evaluacionIA, setEvaluacionIA] = useState<EvaluacionIA>({});
     const [generandoResumen, setGenerandoResumen] = useState(false);
     const [errors, setErrors] = useState<{ nota?: string }>({});
+    const [modoEdicion, setModoEdicion] = useState(false);
+    const [guardando, setGuardando] = useState(false);
 
     const token = localStorage.getItem('token');
 
@@ -106,18 +110,29 @@ const EntrevistaPendiente = () => {
             }
 
             const data: datoEntrevista = await response.json();
+
             // Parsear el videoResumen si viene como string JSON
             if (data.videoResumen) {
                 try {
                     const resumenObj = JSON.parse(data.videoResumen);
                     data.videoResumen = resumenObj.text || data.videoResumen;
                 } catch (e) {
-                    // Si no es JSON válido, mantener el valor original
                     console.log("videoResumen no es JSON, usando valor directo");
                 }
             }
 
             setEntrevista(data);
+
+            // Verificar si ya tiene evaluación (valoracion > 0 o feedback no vacío)
+            const yaEvaluada = data.valoracion > 0 || (data.feedBack && data.feedBack.trim() !== '');
+
+            if (yaEvaluada) {
+                setModoEdicion(true);
+                setEvaluacion({
+                    feedback: data.feedBack || '',
+                    nota: data.valoracion || 1
+                });
+            }
         } catch (error) {
             console.error("Error al cargar la entrevista:", error);
         }
@@ -131,12 +146,12 @@ const EntrevistaPendiente = () => {
             const response = await fetch(
                 `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/generarResumenEntrevistaIA`,
                 {
-                    method: 'POST', // <-- cambio a POST
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ texto: entrevista.videoResumen }) // <-- enviamos JSON
+                    body: JSON.stringify({ texto: entrevista.videoResumen })
                 }
             );
 
@@ -147,11 +162,13 @@ const EntrevistaPendiente = () => {
             const data: EvaluacionIA = await response.json();
             setEvaluacionIA(data);
 
-            // Si hay una nota sugerida, ofrecerla al evaluador
-            if (data.notaSugerida) {
-                setEvaluacion(prev => ({ ...prev, nota: data.notaSugerida! }));
+            // Si hay una nota sugerida y no estamos en modo edición, ofrecerla
+            if (data.notaSugerida && !modoEdicion) {
+                setEvaluacion(prev => ({
+                    ...prev,
+                    nota: data.notaSugerida!
+                }));
             }
-
         } catch (error) {
             console.error("Error al generar resumen crítico:", error);
         } finally {
@@ -159,11 +176,9 @@ const EntrevistaPendiente = () => {
         }
     };
 
-
     const handleNotaChange = (value: string) => {
         const nota = parseInt(value);
 
-        // Validaciones
         if (isNaN(nota) || nota < 1 || nota > 20) {
             setErrors({ nota: "La nota debe ser un número entero entre 1 y 20" });
             return;
@@ -183,26 +198,66 @@ const EntrevistaPendiente = () => {
             return;
         }
 
-        const params = new URLSearchParams({
-            idEntrevistaEstudiante: idEntrevista?.toString() || '',
-            feedback: evaluacion.feedback,
-            valoracion: evaluacion.nota.toString()
-        });
+        setGuardando(true);
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/evaluarEntrevista?${params}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+            if (modoEdicion) {
+                console.log("Actualizando");
+                // Modo edición: hacer PUT
+                const body = {
+                    id: entrevista!.id,
+                    feedBack: evaluacion.feedback,
+                    valoracion: evaluacion.nota,
+
+                };
+
+                const response = await fetch(
+                    `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/updateEntrevistaEstudiante`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(body)
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Error al actualizar la evaluación');
                 }
-            })
-            if (!response.ok) {
-                throw new Error('Error al guardar la evaluación');
+
+                alert('Evaluación actualizada exitosamente');
+            } else {
+                // Modo creación: hacer POST
+                const params = new URLSearchParams({
+                    idEntrevistaEstudiante: idEntrevista?.toString() || '',
+                    feedback: evaluacion.feedback,
+                    valoracion: evaluacion.nota.toString()
+                });
+
+                const response = await fetch(
+                    `${import.meta.env.VITE_HOST_BACKEND}/api/entrevistaEstudiante/evaluarEntrevista?${params}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Error al guardar la evaluación');
+                }
             }
+
             navigate(-1);
         } catch (error) {
-            console.error("Error al guardar la evaluación:", error);
+            console.error("Error al guardar/actualizar la evaluación:", error);
+            alert('Hubo un error al procesar la evaluación. Por favor intenta de nuevo.');
+        } finally {
+            setGuardando(false);
         }
     };
 
@@ -216,9 +271,16 @@ const EntrevistaPendiente = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
-                Evaluación de Entrevista Técnica
-            </h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold text-gray-800">
+                    {modoEdicion ? 'Editar Evaluación' : 'Evaluación de Entrevista Técnica'}
+                </h1>
+                {modoEdicion && (
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                        Modo Edición
+                    </span>
+                )}
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Columna izquierda - Video y resumen */}
@@ -259,8 +321,8 @@ const EntrevistaPendiente = () => {
                                 onClick={generarResumenCritico}
                                 disabled={generandoResumen}
                                 className={`px-4 py-2 rounded-md font-medium transition-colors ${generandoResumen
-                                    ? 'bg-gray-400 cursor-not-allowed text-white'
-                                    : 'bg-purple-600 hover:bg-purple-700 text-white'
+                                        ? 'bg-gray-400 cursor-not-allowed text-white'
+                                        : 'bg-purple-600 hover:bg-purple-700 text-white'
                                     }`}
                             >
                                 {generandoResumen ? 'Analizando...' : 'Generar Análisis con IA'}
@@ -347,10 +409,8 @@ const EntrevistaPendiente = () => {
                                 </div>
                             </div>
                         )}
-
                     </div>
 
-                    {/* Feedback */}
                     {/* Feedback */}
                     <div className="bg-green-50 p-4 rounded-lg">
                         <h2 className="text-xl font-semibold text-gray-700 mb-3">
@@ -363,7 +423,7 @@ const EntrevistaPendiente = () => {
                                     handleFeedbackChange(e.target.value);
                                 }
                             }}
-                            maxLength={255} // importante para bloquear la escritura extra
+                            maxLength={255}
                             placeholder="Escribe tu feedback detallado sobre el desempeño del estudiante..."
                             className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
@@ -371,7 +431,6 @@ const EntrevistaPendiente = () => {
                             {evaluacion.feedback.length}/255
                         </div>
                     </div>
-
 
                     {/* Nota */}
                     <div className="bg-orange-50 p-4 rounded-lg">
@@ -391,8 +450,8 @@ const EntrevistaPendiente = () => {
                                 value={evaluacion.nota}
                                 onChange={(e) => handleNotaChange(e.target.value)}
                                 className={`w-20 p-2 border rounded-md text-center font-bold text-lg ${errors.nota
-                                    ? 'border-red-500 focus:ring-red-500'
-                                    : 'border-gray-300 focus:ring-orange-500'
+                                        ? 'border-red-500 focus:ring-red-500'
+                                        : 'border-gray-300 focus:ring-orange-500'
                                     } focus:ring-2 focus:border-transparent`}
                             />
                             <span className="text-gray-600">/ 20</span>
@@ -402,15 +461,24 @@ const EntrevistaPendiente = () => {
                         )}
                     </div>
 
-                    {/* Botón de guardar */}
+                    {/* Botón de guardar/actualizar */}
                     <div className="pt-4">
                         <button
                             onClick={guardarEvaluacion}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md"
+                            disabled={guardando}
+                            className={`w-full font-bold py-3 px-6 rounded-lg transition-colors shadow-md ${guardando
+                                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
                         >
-                            Guardar Evaluación
+                            {guardando
+                                ? 'Procesando...'
+                                : modoEdicion
+                                    ? 'Actualizar Evaluación'
+                                    : 'Guardar Evaluación'}
                         </button>
                     </div>
+
                     <div className="pt-4">
                         <button
                             onClick={() => navigate(-1)}

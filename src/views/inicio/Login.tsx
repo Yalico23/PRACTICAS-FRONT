@@ -73,7 +73,7 @@ const Login = () => {
           navigate("/mentor/evaluaciones");
           break;
         case "ROLE_ADMIN":
-          navigate("/dashboard-admin");
+          navigate("/admin/inicio");
           break;
         default:
           navigate("/");

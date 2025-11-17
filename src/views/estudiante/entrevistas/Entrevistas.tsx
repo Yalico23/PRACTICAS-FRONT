@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { JwTPayload, ListaEntrevistas, PaginatedResponse } from "./Types";
 import { jwtDecode } from "jwt-decode";
 import Spinner from "../../../components/Spinner";
+import { span } from "framer-motion/client";
 
 const Entrevistas = () => {
 
@@ -226,16 +227,20 @@ const Entrevistas = () => {
                               Iniciar
                             </span>
                           </Button>
-                        ): (
-                          <Button variant="start" onClick={() =>
-                          navigate(`/estudiante/resultadosEntrevista/${localStorage.getItem("usuarioId")}/${entrevista.id}`)
-                        }>
-                          <span
-                            className="text-sm font-semibold"
-                          >
-                            Ver
+                        ) : entrevista.feedBack === null ? (
+                          <span className="text-sm font-semibold text-gray-500">
+                            En proceso de revisión
                           </span>
-                        </Button>
+                        ) : (
+                          <Button variant="start" onClick={() =>
+                            navigate(`/estudiante/resultadosEntrevista/${localStorage.getItem("usuarioId")}/${entrevista.id}`)
+                          }>
+                            <span
+                              className="text-sm font-semibold"
+                            >
+                              Ver
+                            </span>
+                          </Button>
                         )}
                       </td>
                     </tr>

@@ -226,18 +226,18 @@ const Evaluaciones = () => {
                           }`}>{evaluacion.estado}</span>
                       </td>
                       <td className="px-6 py-4 text-center">{evaluacion.tiempo}</td>
-                      <td className="text-center flex justify-center gap-2">
+                      <td className="px-6 py-4 text-center flex justify-center gap-2">
                         {evaluacion.estado === "Disponible" ? (
                           <Button onClick={() => startEvaluacion(evaluacion.id)}>
-                            <span className="text-sm font-semibold">
-                              Iniciar
-                            </span>
+                            <span className="text-sm font-semibold">Iniciar</span>
                           </Button>
+                        ) : evaluacion.feedback === null ? (
+                          <span className="text-sm font-semibold text-gray-500">
+                            En proceso de revisión
+                          </span>
                         ) : (
                           <Button onClick={() => verResultado(evaluacion.id)}>
-                            <span className="text-sm font-semibold">
-                              Ver Resultado
-                            </span>
+                            <span className="text-sm font-semibold">Ver Resultado</span>
                           </Button>
                         )}
                       </td>

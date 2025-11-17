@@ -13,6 +13,7 @@ export interface ListaEntrevistas {
     mentor: string;
     estado: string;
     tiempo: string;
+    feedBack: string;
 }
 
 export interface PaginatedResponse {
