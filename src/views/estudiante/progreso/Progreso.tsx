@@ -9,10 +9,10 @@ import {
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  RadialLinearScale
 } from 'chart.js';
-import { Bar, Line, Doughnut } from 'react-chartjs-2';
-import type { ComparacionPromedio, ProgresoMensual, PromedioCalificacion } from "./type";
+import { Bar, Line, Doughnut, Radar } from 'react-chartjs-2';
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -24,27 +24,53 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  RadialLinearScale
 );
+
+interface CompararMentores {
+  evaluacionesConMentor: number;
+  calificacionMaxima: number;
+  calificacionMinima: number;
+  calificacionPromedio: number;
+  mentorNombre: string;
+  mentorApellidos: string;
+}
+
+interface ComparacionPromedio {
+  evaluacion: string;
+  miCalificacion: number;
+  calificacionPromedioGeneral: number;
+  diferenciaConPromedio: number;
+  posicionRelativa: string;
+}
+
+interface ProgresoMensual {
+  mesAnio: string;
+  calificacionPromedio: number;
+  calificacionMaxima: number;
+  calificacionMinima: number;
+  evaluacionesRealizadas: number;
+}
 
 const Progreso = () => {
   const idMentor = localStorage.getItem('usuarioId') || '';
   const token = localStorage.getItem('token') || '';
 
-  const [promedioCalificacion, setPromedioCalificacion] = useState<PromedioCalificacion | null>(null);
+  const [compararMentores, setCompararMentores] = useState<CompararMentores[]>([]);
   const [comparacionPromedio, setComparacionPromedio] = useState<ComparacionPromedio[]>([]);
   const [progresoMensual, setProgresoMensual] = useState<ProgresoMensual[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getPromedioCalificacion();
+    getCompararMentores();
     getComparacionPromedio();
     getProgresoMensual();
   }, []);
 
-  const getPromedioCalificacion = async () => {
+  const getCompararMentores = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/promedioCalificaciones/${idMentor}`, {
+      const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/evaluacionEstudiante/comparacionMentores/${idMentor}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +79,7 @@ const Progreso = () => {
       });
 
       const data = await response.json();
-      setPromedioCalificacion(data);
+      setCompararMentores(data);
     } catch (error) {
       console.log(error);
     }
@@ -92,6 +118,259 @@ const Progreso = () => {
     } catch (error) {
       console.log(error);
       setLoading(false);
+    }
+  };
+
+  // Calcular estadísticas generales
+  const totalEvaluaciones = compararMentores.reduce((sum, m) => sum + m.evaluacionesConMentor, 0);
+  const promedioGeneral = compararMentores.length > 0
+    ? compararMentores.reduce((sum, m) => sum + m.calificacionPromedio, 0) / compararMentores.length
+    : 0;
+  const mejorMentor = compararMentores.length > 0
+    ? compararMentores.reduce((prev, current) => 
+        prev.calificacionPromedio > current.calificacionPromedio ? prev : current
+      )
+    : null;
+
+  // Gráfico de barras: Promedio por mentor
+  const mentoresPromedioData = {
+    labels: compararMentores.map(m => `${m.mentorNombre} ${m.mentorApellidos}`),
+    datasets: [
+      {
+        label: 'Calificación Promedio',
+        data: compararMentores.map(m => m.calificacionPromedio),
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 2
+      }
+    ]
+  };
+
+  const mentoresPromedioOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Promedio de Calificaciones por Mentor',
+        font: {
+          size: 16,
+          weight: 'bold' as const
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 20,
+        ticks: {
+          stepSize: 2
+        }
+      }
+    }
+  };
+
+  // Gráfico de dona: Distribución de evaluaciones por mentor
+  const evaluacionesPorMentorData = {
+    labels: compararMentores.map(m => `${m.mentorNombre} ${m.mentorApellidos}`),
+    datasets: [
+      {
+        label: 'Evaluaciones',
+        data: compararMentores.map(m => m.evaluacionesConMentor),
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(251, 191, 36, 0.8)',
+          'rgba(168, 85, 247, 0.8)',
+          'rgba(236, 72, 153, 0.8)',
+        ],
+        borderColor: [
+          'rgba(59, 130, 246, 1)',
+          'rgba(34, 197, 94, 1)',
+          'rgba(251, 191, 36, 1)',
+          'rgba(168, 85, 247, 1)',
+          'rgba(236, 72, 153, 1)',
+        ],
+        borderWidth: 2
+      }
+    ]
+  };
+
+  const evaluacionesPorMentorOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          font: {
+            size: 11
+          }
+        }
+      },
+      title: {
+        display: true,
+        text: 'Distribución de Evaluaciones por Mentor',
+        font: {
+          size: 16,
+          weight: 'bold' as const
+        }
+      }
+    }
+  };
+
+  // Gráfico de líneas múltiples: Comparación de tendencias por mentor
+  const tendenciasMentoresData = {
+    labels: compararMentores.map(m => `${m.mentorNombre} ${m.mentorApellidos}`),
+    datasets: [
+      {
+        label: 'Calificación Máxima',
+        data: compararMentores.map(m => m.calificacionMaxima),
+        borderColor: 'rgb(34, 197, 94)',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 3,
+        pointRadius: 5,
+        pointBackgroundColor: 'rgb(34, 197, 94)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      },
+      {
+        label: 'Calificación Promedio',
+        data: compararMentores.map(m => m.calificacionPromedio),
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 3,
+        pointRadius: 5,
+        pointBackgroundColor: 'rgb(59, 130, 246)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      },
+      {
+        label: 'Calificación Mínima',
+        data: compararMentores.map(m => m.calificacionMinima),
+        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 3,
+        pointRadius: 5,
+        pointBackgroundColor: 'rgb(239, 68, 68)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }
+    ]
+  };
+
+  const tendenciasMentoresOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        labels: {
+          font: {
+            size: 12
+          },
+          usePointStyle: true,
+          padding: 15
+        }
+      },
+      title: {
+        display: true,
+        text: 'Tendencias de Calificaciones por Mentor',
+        font: {
+          size: 16,
+          weight: 'bold' as const
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 20,
+        ticks: {
+          stepSize: 2
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
+    },
+    interaction: {
+      mode: 'index' as const,
+      intersect: false
+    }
+  };
+
+  // Gráfico de barras agrupadas: Calificaciones máximas, mínimas y promedio
+  const rangoCalificacionesData = {
+    labels: compararMentores.map(m => `${m.mentorNombre} ${m.mentorApellidos}`),
+    datasets: [
+      {
+        label: 'Máxima',
+        data: compararMentores.map(m => m.calificacionMaxima),
+        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+        borderColor: 'rgba(34, 197, 94, 1)',
+        borderWidth: 2
+      },
+      {
+        label: 'Promedio',
+        data: compararMentores.map(m => m.calificacionPromedio),
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 2
+      },
+      {
+        label: 'Mínima',
+        data: compararMentores.map(m => m.calificacionMinima),
+        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+        borderColor: 'rgba(239, 68, 68, 1)',
+        borderWidth: 2
+      }
+    ]
+  };
+
+  const rangoCalificacionesOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        labels: {
+          font: {
+            size: 12
+          }
+        }
+      },
+      title: {
+        display: true,
+        text: 'Rango de Calificaciones por Mentor',
+        font: {
+          size: 16,
+          weight: 'bold' as const
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 20,
+        ticks: {
+          stepSize: 2
+        }
+      }
     }
   };
 
@@ -211,53 +490,6 @@ const Progreso = () => {
     }
   };
 
-  // Configuración del gráfico de dona (Doughnut)
-  const evaluacionesData = {
-    labels: progresoMensual.map(p => p.mesAnio),
-    datasets: [
-      {
-        label: 'Evaluaciones Realizadas',
-        data: progresoMensual.map(p => p.evaluacionesRealizadas),
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(34, 197, 94, 0.8)',
-          'rgba(251, 191, 36, 0.8)',
-          'rgba(168, 85, 247, 0.8)',
-        ],
-        borderColor: [
-          'rgba(59, 130, 246, 1)',
-          'rgba(34, 197, 94, 1)',
-          'rgba(251, 191, 36, 1)',
-          'rgba(168, 85, 247, 1)',
-        ],
-        borderWidth: 2
-      }
-    ]
-  };
-
-  const evaluacionesOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom' as const,
-        labels: {
-          font: {
-            size: 11
-          }
-        }
-      },
-      title: {
-        display: true,
-        text: 'Distribución de Evaluaciones',
-        font: {
-          size: 16,
-          weight: 'bold' as const
-        }
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -272,7 +504,7 @@ const Progreso = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard de Progreso Académico</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard de Comparación de Mentores</h1>
         
         {/* Tarjetas de resumen */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -281,10 +513,10 @@ const Progreso = () => {
               <div>
                 <p className="text-gray-500 text-sm mb-1">Promedio General</p>
                 <p className="text-3xl font-bold text-blue-600">
-                  {promedioCalificacion?.promedioRango.toFixed(1)}
+                  {promedioGeneral.toFixed(1)}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {promedioCalificacion?.rangoCalificacion}
+                  Con todos los mentores
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -298,7 +530,7 @@ const Progreso = () => {
               <div>
                 <p className="text-gray-500 text-sm mb-1">Total Evaluaciones</p>
                 <p className="text-3xl font-bold text-green-600">
-                  {promedioCalificacion?.cantidad}
+                  {totalEvaluaciones}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">Completadas</p>
               </div>
@@ -311,46 +543,99 @@ const Progreso = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">Tendencia</p>
-                <p className="text-3xl font-bold text-purple-600">
-                  +{((progresoMensual[progresoMensual.length - 1]?.calificacionPromedio || 0) - 
-                     (progresoMensual[0]?.calificacionPromedio || 0)).toFixed(1)}
+                <p className="text-gray-500 text-sm mb-1">Mejor Mentor</p>
+                <p className="text-xl font-bold text-purple-600">
+                  {mejorMentor ? `${mejorMentor.mentorNombre}` : 'N/A'}
                 </p>
-                <p className="text-sm text-gray-600 mt-1">Mejora continua</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Promedio: {mejorMentor?.calificacionPromedio.toFixed(1) || 'N/A'}
+                </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">📈</span>
+                <span className="text-2xl">🏆</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Gráficos */}
+        {/* Gráficos principales - Comparación de mentores */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Gráfico de comparación */}
+          {/* Gráfico de promedio por mentor */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div style={{ height: '350px' }}>
+              <Bar data={mentoresPromedioData} options={mentoresPromedioOptions} />
+            </div>
+          </div>
+
+          {/* Gráfico de distribución de evaluaciones */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div style={{ height: '350px' }}>
+              <Doughnut data={evaluacionesPorMentorData} options={evaluacionesPorMentorOptions} />
+            </div>
+          </div>
+        </div>
+
+        {/* Gráficos de análisis detallado */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Gráfico de rango de calificaciones */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div style={{ height: '350px' }}>
+              <Bar data={rangoCalificacionesData} options={rangoCalificacionesOptions} />
+            </div>
+          </div>
+        </div>
+
+        {/* Gráficos adicionales */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Gráfico de comparación con promedio general */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div style={{ height: '350px' }}>
               <Bar data={comparacionData} options={comparacionOptions} />
             </div>
           </div>
 
-          {/* Gráfico de evaluaciones */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div style={{ height: '350px' }}>
-              <Doughnut data={evaluacionesData} options={evaluacionesOptions} />
+          {/* Tabla de estadísticas por mentor */}
+          <div className="bg-white rounded-lg shadow-md p-6 overflow-auto">
+            <h2 className="text-lg font-bold text-gray-800 mb-4">Estadísticas por Mentor</h2>
+            <div className="space-y-3">
+              {compararMentores.map((mentor, index) => (
+                <div key={index} className="border-b pb-3">
+                  <p className="font-semibold text-gray-800 mb-2">
+                    {mentor.mentorNombre} {mentor.mentorApellidos}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-gray-500">Evaluaciones:</span>
+                      <span className="ml-2 font-medium">{mentor.evaluacionesConMentor}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Promedio:</span>
+                      <span className="ml-2 font-medium text-blue-600">{mentor.calificacionPromedio.toFixed(1)}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Máxima:</span>
+                      <span className="ml-2 font-medium text-green-600">{mentor.calificacionMaxima}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Mínima:</span>
+                      <span className="ml-2 font-medium text-red-600">{mentor.calificacionMinima}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Gráfico de progreso mensual - ancho completo */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div style={{ height: '400px' }}>
             <Line data={progresoData} options={progresoOptions} />
           </div>
         </div>
 
-        {/* Tabla de detalles */}
-        <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+        {/* Tabla de detalles por evaluación */}
+        <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Detalle por Evaluación</h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">

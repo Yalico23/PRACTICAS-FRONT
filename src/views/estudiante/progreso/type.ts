@@ -19,3 +19,12 @@ export interface ProgresoMensual {
     calificacionMinima: number;
     calificacionMaxima: number;
 }
+
+export interface CompararMentores {
+    evaluacionesConMentor: number;
+    calificacionMaxima : number;
+    calificacionMinima: number;
+    calificacionPromedio: number;
+    mentorNombre: string;
+    mentorApellidos: string;
+}
