@@ -121,28 +121,6 @@ const Evaluaciones = () => {
     return <Spinner />;
   }
 
-  const openModal = (
-    titulo: string,
-    tiempo: string,
-    descripcion: string,
-    tecnologias: string
-  ) => {
-    Swal.fire({
-      title: titulo,
-      html: `
-      <p><strong>Tiempo:</strong> ${tiempo}</p>
-      <p><strong>Descripción:</strong> ${descripcion}</p>
-      <p><strong>Tecnologías:</strong> ${tecnologias}</p>
-    `,
-      icon: "info",
-      showConfirmButton: true,
-      confirmButtonText: "Cerrar",
-      customClass: {
-        popup: "animate__animated animate__fadeInUp",
-      },
-    });
-  };
-
   const startEvaluacion = (id: number) => {
     Swal.fire({
       title: "Iniciar Evaluación",
@@ -156,6 +134,10 @@ const Evaluaciones = () => {
         navigate(`/estudiante/evaluacion/${id}`);
       }
     })
+  }
+
+  const verResultado = (idEvaluacion: number) => {
+    navigate(`/estudiante/resultados/${localStorage.getItem('usuarioId')}/${idEvaluacion}`);
   }
 
   return (
@@ -200,7 +182,7 @@ const Evaluaciones = () => {
           {/* Controles de paginación superior */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-300">Mostrar:</span>
+              <span className="text-sm">Mostrar:</span>
               <select
                 value={pageSize}
                 onChange={(e) => handlePageSizeChange(Number(e.target.value))}
@@ -210,9 +192,9 @@ const Evaluaciones = () => {
                 <option value={10}>10</option>
                 <option value={20}>20</option>
               </select>
-              <span className="text-sm text-gray-300">por página</span>
+              <span className="text-sm">por página</span>
             </div>
-            <div className="text-sm text-gray-300">
+            <div className="text-sm">
               Mostrando {paginationInfo.currentPage * paginationInfo.pageSize + 1} a{' '}
               {Math.min((paginationInfo.currentPage + 1) * paginationInfo.pageSize, paginationInfo.totalElements)} de{' '}
               {paginationInfo.totalElements} evaluaciones
@@ -244,26 +226,18 @@ const Evaluaciones = () => {
                           }`}>{evaluacion.estado}</span>
                       </td>
                       <td className="px-6 py-4 text-center">{evaluacion.tiempo}</td>
-                      <td className="text-center flex justify-center gap-2">
-                        <Button variant="start" onClick={() =>
-                          openModal(
-                            evaluacion.titulo,
-                            evaluacion.tiempo,
-                            evaluacion.descripcion,
-                            evaluacion.tecnologia
-                          )
-                        }>
-                          <span
-                            className="text-sm font-semibold"
-                          >
-                            Ver
-                          </span>
-                        </Button>
-                        {evaluacion.estado === "Disponible" && (
+                      <td className="px-6 py-4 text-center flex justify-center gap-2">
+                        {evaluacion.estado === "Disponible" ? (
                           <Button onClick={() => startEvaluacion(evaluacion.id)}>
-                            <span className="text-sm font-semibold">
-                              Iniciar
-                            </span>
+                            <span className="text-sm font-semibold">Iniciar</span>
+                          </Button>
+                        ) : evaluacion.feedback === null ? (
+                          <span className="text-sm font-semibold text-gray-500">
+                            En proceso de revisión
+                          </span>
+                        ) : (
+                          <Button onClick={() => verResultado(evaluacion.id)}>
+                            <span className="text-sm font-semibold">Ver Resultado</span>
                           </Button>
                         )}
                       </td>
@@ -343,7 +317,7 @@ const Evaluaciones = () => {
           )}
 
           {/* Información de paginación */}
-          <div className="text-center mt-2 text-sm text-gray-300">
+          <div className="text-center mt-2 text-sm">
             Página {currentPage + 1} de {paginationInfo.totalPages}
           </div>
         </main>

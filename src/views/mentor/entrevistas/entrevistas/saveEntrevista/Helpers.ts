@@ -43,7 +43,7 @@ export const crearEntrevista = async (entrevista: any, token: string) => {
     }
 }
 
-export const actualizarEntrevista = async (entrevista:EntrevistaData, token:string) => {
+export const actualizarEntrevista = async (entrevista: EntrevistaData, token: string) => {
     try {
         const response = await fetch(`${import.meta.env.VITE_HOST_BACKEND}/api/entrevistas/modificar`, {
             method: 'PUT',

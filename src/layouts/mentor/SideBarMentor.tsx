@@ -12,10 +12,10 @@ export default function SideBarMentor() {
   const navigate = useNavigate();
 
   const [Usuario, setUsuario] = useState<UsuarioInfo>({
-    id : 0,
-    nombre : "",
-    apellidos : "",
-    email : ""
+    id: 0,
+    nombre: "",
+    apellidos: "",
+    email: ""
   });
 
   const token = localStorage.getItem('token');
@@ -47,6 +47,8 @@ export default function SideBarMentor() {
 
     const data = await response.json();
     setUsuario(data);
+    localStorage.setItem('usuarioId', data.id.toString());
+
   }
 
   const cerrarSesion = () => {

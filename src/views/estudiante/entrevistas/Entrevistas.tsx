@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { JwTPayload, ListaEntrevistas, PaginatedResponse } from "./Types";
 import { jwtDecode } from "jwt-decode";
 import Spinner from "../../../components/Spinner";
+import { span } from "framer-motion/client";
 
 const Entrevistas = () => {
 
@@ -120,24 +121,6 @@ const Entrevistas = () => {
     return <Spinner />;
   }
 
-  const openModal = (titulo: string, tiempo: string, mentor: string, estado: string, descripcion: string) => {
-    Swal.fire({
-      title: titulo,
-      html: `
-      <p><strong>Tiempo:</strong> ${tiempo}</p>
-      <p><strong>Mentor:</strong> ${mentor}</p>
-      <p><strong>Descripción:</strong> ${descripcion}</p>
-      <p><strong>Estado:</strong> ${estado}</p>
-    `,
-      icon: "info",
-      showConfirmButton: true,
-      confirmButtonText: "Cerrar",
-      customClass: {
-        popup: "animate__animated animate__fadeInUp",
-      },
-    })
-  }
-
   const startEntrevista = (id: number) => {
     Swal.fire({
       title: "Iniciar Entrevista",
@@ -183,7 +166,7 @@ const Entrevistas = () => {
               <button
                 type="button"
                 onClick={clearFilter}
-                className="bg-[#DC3545] text-white px-4 py-2 rounded-sm hover:bg-[#c82333] transition"
+                className="bg-[#f7e1e3] text-white px-4 py-2 rounded-sm hover:bg-[#c82333] transition"
               >
                 Limpiar
               </button>
@@ -195,7 +178,7 @@ const Entrevistas = () => {
           {/* Controles de paginación superior */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-300">Mostrar:</span>
+              <span className="text-sm">Mostrar:</span>
               <select
                 value={pageSize}
                 onChange={(e) => handlePageSizeChange(Number(e.target.value))}
@@ -205,9 +188,9 @@ const Entrevistas = () => {
                 <option value={10}>10</option>
                 <option value={20}>20</option>
               </select>
-              <span className="text-sm text-gray-300">por página</span>
+              <span className="text-sm">por página</span>
             </div>
-            <div className="text-sm text-gray-300">
+            <div className="text-sm">
               Mostrando {paginationInfo.currentPage * paginationInfo.pageSize + 1} a{' '}
               {Math.min((paginationInfo.currentPage + 1) * paginationInfo.pageSize, paginationInfo.totalElements)} de{' '}
               {paginationInfo.totalElements} evaluaciones
@@ -238,25 +221,24 @@ const Entrevistas = () => {
                       </td>
                       <td className="px-6 py-4 text-center">{entrevista.tiempo}</td>
                       <td className="text-center flex justify-center gap-2">
-                        <Button variant="start" onClick={() =>
-                          openModal(
-                            entrevista.nombre,
-                            entrevista.tiempo,
-                            entrevista.mentor,
-                            entrevista.estado,
-                            entrevista.descripcion
-                          )
-                        }>
-                          <span
-                            className="text-sm font-semibold"
-                          >
-                            Ver
-                          </span>
-                        </Button>
-                        {entrevista.estado === "Disponible" && (
+                        {entrevista.estado === "Disponible" ? (
                           <Button onClick={() => startEntrevista(entrevista.id)}>
                             <span className="text-sm font-semibold">
                               Iniciar
+                            </span>
+                          </Button>
+                        ) : entrevista.feedBack === null ? (
+                          <span className="text-sm font-semibold text-gray-500">
+                            En proceso de revisión
+                          </span>
+                        ) : (
+                          <Button variant="start" onClick={() =>
+                            navigate(`/estudiante/resultadosEntrevista/${localStorage.getItem("usuarioId")}/${entrevista.id}`)
+                          }>
+                            <span
+                              className="text-sm font-semibold"
+                            >
+                              Ver
                             </span>
                           </Button>
                         )}
@@ -337,7 +319,7 @@ const Entrevistas = () => {
           )}
 
           {/* Información de paginación */}
-          <div className="text-center mt-2 text-sm text-gray-300">
+          <div className="text-center mt-2 text-sm">
             Página {currentPage + 1} de {paginationInfo.totalPages}
           </div>
         </main>

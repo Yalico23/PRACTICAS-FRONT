@@ -48,6 +48,7 @@ export default function SideBar() {
 
     const data = await response.json();
     setUsuario(data);
+    localStorage.setItem('usuarioId', data.id.toString());
   }
 
   const cerrarSesion = () => {
@@ -78,20 +79,17 @@ export default function SideBar() {
       <div className="w-64 h-screen border-r shadow-sm flex flex-col justify-between bg-[#1D1D1D]">
         <div>
           <div className="flex flex-col items-center py-6 border-b">
-            <IconPhStudentDuotone className="size-14 text-white" />
-            <p className="text-sm font-semibold text-center text-white">{Usuario.nombre + " " + Usuario.apellidos}</p>
-            <p className="text-xs text-gray-100 text-center">{Usuario.email}</p>
+            <IconPhStudentDuotone className="size-14 text-white mt-4" />
+            <p className="text-sm font-semibold text-center text-white mt-5 text-[1rem]">{Usuario.nombre + " " + Usuario.apellidos}</p>
+            <p className="text-xs text-gray-100 text-center mt-4 text-[1rem]">{Usuario.email}</p>
           </div>
 
-          <div className="flex flex-col px-4 py-4 space-y-2">
+          <div className="flex flex-col px-4 py-4 space-y-4 mt-4">
             <Enlace enlace="/estudiante/evaluaciones">
               Evaluaciones
             </Enlace>
             <Enlace enlace="/estudiante/entrevistas">
               Entrevistas
-            </Enlace>
-            <Enlace enlace="/estudiante/resultados">
-              Mis Resultados
             </Enlace>
             <Enlace enlace="/estudiante/progreso">
               Mi Progreso
@@ -100,8 +98,8 @@ export default function SideBar() {
         </div>
 
         <div className="px-4 py-4">
-          <Button onClick={cerrarSesion}>
-            <span className="text-sm font-semibold">Cerrar Sesión</span>
+          <Button onClick={cerrarSesion} className="w-full my-5">
+            <span className="text-sm font-semibold text-[1rem]">Cerrar Sesión</span>
           </Button>
         </div>
       </div>

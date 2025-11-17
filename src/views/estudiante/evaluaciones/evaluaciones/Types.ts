@@ -14,6 +14,7 @@ export interface ListaEvaluaciones {
     tecnologia: string;
     estado: string;
     tiempo: string;
+    feedback: string;
 }
 
 export interface PaginatedResponse {
