@@ -12,7 +12,7 @@ import {
   ArcElement,
   RadialLinearScale
 } from 'chart.js';
-import { Bar, Line, Doughnut, Radar } from 'react-chartjs-2';
+import { Bar, Line, Doughnut } from 'react-chartjs-2';
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -222,99 +222,6 @@ const Progreso = () => {
     }
   };
 
-  // Gráfico de líneas múltiples: Comparación de tendencias por mentor
-  const tendenciasMentoresData = {
-    labels: compararMentores.map(m => `${m.mentorNombre} ${m.mentorApellidos}`),
-    datasets: [
-      {
-        label: 'Calificación Máxima',
-        data: compararMentores.map(m => m.calificacionMaxima),
-        borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        tension: 0.4,
-        fill: true,
-        borderWidth: 3,
-        pointRadius: 5,
-        pointBackgroundColor: 'rgb(34, 197, 94)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2
-      },
-      {
-        label: 'Calificación Promedio',
-        data: compararMentores.map(m => m.calificacionPromedio),
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        tension: 0.4,
-        fill: true,
-        borderWidth: 3,
-        pointRadius: 5,
-        pointBackgroundColor: 'rgb(59, 130, 246)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2
-      },
-      {
-        label: 'Calificación Mínima',
-        data: compararMentores.map(m => m.calificacionMinima),
-        borderColor: 'rgb(239, 68, 68)',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        tension: 0.4,
-        fill: true,
-        borderWidth: 3,
-        pointRadius: 5,
-        pointBackgroundColor: 'rgb(239, 68, 68)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2
-      }
-    ]
-  };
-
-  const tendenciasMentoresOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          font: {
-            size: 12
-          },
-          usePointStyle: true,
-          padding: 15
-        }
-      },
-      title: {
-        display: true,
-        text: 'Tendencias de Calificaciones por Mentor',
-        font: {
-          size: 16,
-          weight: 'bold' as const
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 20,
-        ticks: {
-          stepSize: 2
-        },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.05)'
-        }
-      },
-      x: {
-        grid: {
-          display: false
-        }
-      }
-    },
-    interaction: {
-      mode: 'index' as const,
-      intersect: false
-    }
-  };
-
-  // Gráfico de barras agrupadas: Calificaciones máximas, mínimas y promedio
   const rangoCalificacionesData = {
     labels: compararMentores.map(m => `${m.mentorNombre} ${m.mentorApellidos}`),
     datasets: [

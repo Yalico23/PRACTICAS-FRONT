@@ -27,6 +27,7 @@ import ResultadoEntrevista from './views/estudiante/entrevistas/resultados/Resul
 import MainLayoutAdmin from './layouts/admin/MainLayoutAdmin'
 import { CrearUsuario } from './views/admin/CrearUsuario'
 import ListarUsuarios from './views/admin/ListarUsuarios'
+import { ActualizarUsuario } from './views/admin/ActualizarUsuario'
 
 export default function Router() {
     return (
@@ -112,6 +113,7 @@ export default function Router() {
                 }>
                     <Route path='/admin/inicio' element={<CrearUsuario />} />
                     <Route path='/admin/usuarios' element={<ListarUsuarios />} />
+                    <Route path='/admin/usuarios/actualizar/:usuarioId' element={<ActualizarUsuario />} />
                 </Route>
 
                 {/* Ruta catch-all para 404 */}

@@ -1,13 +1,18 @@
 import { useState, type ChangeEvent } from 'react';
+import type { Usuario } from './Type';
 
 export const CrearUsuario = () => {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    apellidos: '',
-    email: '',
-    password: '',
-    mentor: false
-  });
+  const [formData, setFormData] = useState<Usuario>(
+    {
+      id: null,
+      nombre: '',
+      apellidos: '',
+      email: '',
+      password: '',
+      mentor: false,
+      habilitado: false
+    }
+  );
   
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -48,11 +53,13 @@ export const CrearUsuario = () => {
         setSuccess(true);
         // Limpiar formulario después de éxito
         setFormData({
+          id: null,  
           nombre: '',
           apellidos: '',
           email: '',
           password: '',
-          mentor: false
+          mentor: false,
+          habilitado: false
         });
       }
     } catch (error) {

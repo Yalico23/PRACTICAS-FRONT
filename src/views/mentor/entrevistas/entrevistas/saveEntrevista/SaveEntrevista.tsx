@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import EntrevistaForm from "./EntrevistaForm";
 import type { EntrevistaData, Pregunta } from "./types";
 import PreguntasList from "./PreguntasList";
-import type { JwTPayload, UsuarioInfo } from "../../../../../interfaces/interfaces";
+import type { JwTPayload } from "../../../../../interfaces/interfaces";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,8 +13,6 @@ import { actualizarEntrevista, cargarEntrevista, cargarUsuario, crearEntrevista 
 const SaveEntrevista = () => {
   const navigate = useNavigate();
   const { entrevistaId } = useParams<{ entrevistaId?: string }>();
-
-  const [Usuario, setUsuario] = useState<UsuarioInfo>();
 
   const [entrevista, setEntrevista] = useState<EntrevistaData>({
     id: entrevistaId ? parseInt(entrevistaId) : 0,
@@ -33,7 +31,6 @@ const SaveEntrevista = () => {
   useEffect(() => {
     const fetchUsuario = async () => {
       const data = await cargarUsuario(decoded.email, token);
-      setUsuario(data);
       setEntrevista(prev => ({ ...prev, mentor: { id: data.id } }));
       if(entrevistaId){
         const entrevistaCargada = await cargarEntrevista(parseInt(entrevistaId), token);

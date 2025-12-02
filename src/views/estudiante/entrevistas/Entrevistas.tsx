@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import type { JwTPayload, ListaEntrevistas, PaginatedResponse } from "./Types";
 import { jwtDecode } from "jwt-decode";
 import Spinner from "../../../components/Spinner";
-import { span } from "framer-motion/client";
 
 const Entrevistas = () => {
 

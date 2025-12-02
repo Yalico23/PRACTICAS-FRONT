@@ -11,7 +11,6 @@ import {
   Clock,
   MessageCircle,
   Star,
-  Play,
 } from "lucide-react"
 import TikTok from "../../components/icons/Tiktok"
 import Instagram from "../../components/icons/Instagram"

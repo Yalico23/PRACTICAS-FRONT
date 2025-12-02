@@ -9,8 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  ArcElement,
-  RadialLinearScale
+  ArcElement
 } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 
@@ -235,12 +234,12 @@ const ResultadosMentor = () => {
       {
         label: 'Calificación Promedio',
         data: mejorPeorDesempeno.map(m => m.calificacionPromedio),
-        backgroundColor: mejorPeorDesempeno.map((m, idx) => {
+        backgroundColor: mejorPeorDesempeno.map((_, idx) => {
           if (idx === 0) return 'rgba(34, 197, 94, 0.8)'; // Verde para el mejor
           if (idx === mejorPeorDesempeno.length - 1 && mejorPeorDesempeno.length > 1) return 'rgba(239, 68, 68, 0.8)'; // Rojo para el último
           return 'rgba(59, 130, 246, 0.8)'; // Azul para los demás
         }),
-        borderColor: mejorPeorDesempeno.map((m, idx) => {
+        borderColor: mejorPeorDesempeno.map((_, idx) => {
           if (idx === 0) return 'rgba(34, 197, 94, 1)';
           if (idx === mejorPeorDesempeno.length - 1 && mejorPeorDesempeno.length > 1) return 'rgba(239, 68, 68, 1)';
           return 'rgba(59, 130, 246, 1)';
