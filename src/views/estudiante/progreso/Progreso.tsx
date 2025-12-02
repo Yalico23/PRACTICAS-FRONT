@@ -9,8 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  ArcElement,
-  RadialLinearScale
+  ArcElement
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 
@@ -24,8 +23,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement,
-  RadialLinearScale
+  ArcElement
 );
 
 interface CompararMentores {
